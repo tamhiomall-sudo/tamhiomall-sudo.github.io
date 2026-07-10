@@ -147,8 +147,27 @@
     background-position: 65% center;
     width: 60%;
   }
-  .hero-night.horizon .inner { padding: 100px 24px 90px; }
+  .hero-night.horizon .inner { padding: 90px 24px 70px; }
   .hero-night.horizon .statement { color: var(--night-ink); }
+
+  /* Scroll cue: a dew drop sliding down a silk thread */
+  .scroll-cue {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 36px; z-index: 3;
+    background: linear-gradient(var(--ember), transparent);
+  }
+  .scroll-cue::after {
+    content: ""; position: absolute; left: -2px; top: 0;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--ember);
+    animation: cueDrop 2.4s ease-in-out infinite;
+  }
+  @keyframes cueDrop {
+    0% { top: 0; opacity: 0; }
+    15% { opacity: 1; }
+    75% { top: 26px; opacity: 0.9; }
+    100% { top: 32px; opacity: 0; }
+  }
 
   /* Hero */
   .hero { padding: 110px 0 90px; border-bottom: 1px solid var(--line); }
@@ -352,6 +371,7 @@
 <div class="page" id="page-home">
   <div class="hero-night">
     <div class="img-side"></div>
+    <div class="scroll-cue" aria-hidden="true"></div>
     <div class="inner">
       <div class="kicker">Physical security · The built environment</div>
       <h1 style="font-size: clamp(2rem, 4.8vw, 3.6rem); max-width: 20ch;">Where does security truly exist within an organisation?</h1>
@@ -490,6 +510,7 @@
 <div class="page" id="page-writing">
   <div class="hero-night fire">
     <div class="img-side"></div>
+    <div class="scroll-cue" aria-hidden="true"></div>
     <div class="inner">
       <div class="kicker">Writing</div>
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem);">Lenses, not lectures.</h1>
@@ -549,11 +570,12 @@
 <div class="page" id="page-about">
   <div class="hero-night horizon">
     <div class="img-side"></div>
+    <div class="scroll-cue" aria-hidden="true"></div>
     <div class="inner">
       <div class="kicker">About</div>
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem);">Who am I?</h1>
       <p class="lead">I wrote that question in a journal in 2003. I still cannot fully answer it.</p>
-      <p class="statement" style="margin-top: 36px; text-shadow: 0 1px 20px rgba(14,17,23,0.7);">Perhaps that is because we spend our lives becoming. You can leave home, spend decades crossing continents, and return bearing the same name, yet be an entirely different person.</p>
+      <p class="statement" style="margin-top: 32px; font-size: clamp(1.3rem, 2.5vw, 1.85rem); text-shadow: 0 1px 20px rgba(14,17,23,0.7);">Perhaps that is because we spend our lives becoming. You can leave home, spend decades crossing continents, and return bearing the same name, yet be an entirely different person.</p>
     </div>
   </div>
   <div class="wrap">
