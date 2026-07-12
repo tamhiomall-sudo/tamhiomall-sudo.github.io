@@ -331,6 +331,40 @@
   }
   .article .content strong { font-weight: 600; }
 
+  /* Contact form */
+  .contact-form {
+    max-width: 560px; margin: 44px auto 0; text-align: left;
+  }
+  .contact-form label {
+    display: block; font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 0.14em; font-weight: 600; color: var(--ink-soft);
+    margin: 22px 0 8px;
+  }
+  .contact-form input, .contact-form textarea {
+    width: 100%; padding: 13px 14px; font-family: 'Inter', sans-serif;
+    font-size: 1rem; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 2px;
+    box-sizing: border-box;
+  }
+  .contact-form input:focus, .contact-form textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .contact-form textarea { min-height: 150px; resize: vertical; }
+  .contact-form button {
+    margin-top: 26px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    padding: 14px 34px; border-radius: 2px;
+    background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+  }
+  .contact-form button:hover { background: var(--accent); border-color: var(--accent); }
+  .form-note { margin-top: 18px; font-size: 0.9rem; color: var(--ink-soft); }
+  .form-status {
+    display: none; margin-top: 26px; padding: 18px 22px;
+    font-family: 'Fraunces', Georgia, serif; font-size: 1.1rem;
+    border-left: 2px solid var(--ember); background: var(--accent-soft);
+  }
+
   /* Contact + footer */
   .contact-band { text-align: center; padding: 110px 24px; }
   .contact-band h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
@@ -644,10 +678,20 @@
       <div class="kicker" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.18em; color:var(--accent); font-weight:600; margin-bottom:26px;">Contact</div>
       <h2>If something here made you pause, I'd like to hear about it.</h2>
       <p>For conversations about security, decisions, or the writing.</p>
-      <div style="margin-top:44px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-        <a class="btn solid" href="https://www.linkedin.com/in/adriaanbosch/" target="_blank" rel="noopener">Message me on LinkedIn</a>
-        <a class="btn" href="https://start.me/p/YQJgrN/security-links" target="_blank" rel="noopener">My security links</a>
-      </div>
+      <form class="contact-form" id="contact-form" action="https://formspree.io/f/mojgapag" method="POST">
+        <label for="cf-name">Your name</label>
+        <input type="text" id="cf-name" name="name" required autocomplete="name">
+        <label for="cf-email">Your email</label>
+        <input type="email" id="cf-email" name="email" required autocomplete="email">
+        <label for="cf-message">Your message</label>
+        <textarea id="cf-message" name="message" required></textarea>
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+        <div style="text-align:center;">
+          <button type="submit">Send</button>
+        </div>
+        <div class="form-status" id="form-status"></div>
+      </form>
+      <p class="form-note" style="text-align:center;">Prefer another route? <a href="https://www.linkedin.com/in/adriaanbosch/" target="_blank" rel="noopener">Message me on LinkedIn</a> or browse <a href="https://start.me/p/YQJgrN/security-links" target="_blank" rel="noopener">my security links</a>.</p>
     </div>
   </div>
 </div>
@@ -840,6 +884,29 @@
       a.classList.toggle('active', key === hash || (isArticle && key === 'writing'));
     });
     window.scrollTo(0, 0);
+  }
+
+  const cform = document.getElementById('contact-form');
+  if (cform) {
+    cform.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('form-status');
+      const data = new FormData(cform);
+      try {
+        const r = await fetch(cform.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
+        status.style.display = 'block';
+        if (r.ok) {
+          status.textContent = 'Thank you. Your message is on its way, and I read everything that arrives.';
+          cform.reset();
+        } else {
+          status.textContent = 'Something went wrong sending that. Please try again, or reach me on LinkedIn.';
+        }
+      } catch (err) {
+        const status2 = document.getElementById('form-status');
+        status2.style.display = 'block';
+        status2.textContent = 'Something went wrong sending that. Please try again, or reach me on LinkedIn.';
+      }
+    });
   }
 
   window.addEventListener('hashchange', route);
