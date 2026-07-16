@@ -301,6 +301,12 @@
     border-left: 2px solid var(--ember); padding-left: 20px; margin: 30px 0;
   }
 
+  /* Contour hill (point of view) */
+  .contour-hill {
+    display: block; width: min(400px, 90%); margin-top: 44px;
+  }
+  @media (max-width: 800px) { .contour-hill { display: none; } }
+
   /* Experience blocks */
   .exp-grid { margin-top: 46px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
   @media (max-width: 850px) { .exp-grid { grid-template-columns: 1fr; gap: 28px; } }
@@ -468,11 +474,24 @@
   <div class="thread-divider" style="margin-top:34px;"></div>
 
   <div class="wrap">
-    <section class="band" style="padding-top:56px;">
+    <section class="band" style="padding-top:56px; padding-bottom:44px;">
       <div class="two-col">
         <div>
           <div class="label">A point of view</div>
           <h2>Better decisions begin with better ways of seeing.</h2>
+          <svg class="contour-hill" viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g fill="none" stroke="#e3ded4" stroke-width="1">
+              <path d="M20,290 C60,210 90,170 160,150 C240,128 300,150 350,200 C385,236 400,265 408,290"/>
+              <path d="M55,290 C90,228 118,192 172,176 C238,158 288,176 330,216 C358,244 370,268 378,290"/>
+              <path d="M95,290 C122,244 146,214 186,201 C236,186 274,200 306,230 C328,251 338,270 344,290"/>
+              <path d="M135,290 C155,258 174,236 200,226 C234,214 260,224 284,246 C300,261 308,276 312,290"/>
+              <path d="M175,290 C188,270 200,256 216,249 C236,240 252,247 268,262 C277,271 282,281 285,290"/>
+            </g>
+            <path d="M2,272 C70,258 120,268 170,244 C214,222 224,258 262,240 C300,222 330,250 418,232"
+                  fill="none" stroke="#C8A15A" stroke-width="1.1" opacity="0.65"/>
+            <circle cx="170" cy="244" r="2.2" fill="#C8A15A" opacity="0.8"/>
+            <circle cx="262" cy="240" r="2.2" fill="#C8A15A" opacity="0.8"/>
+          </svg>
         </div>
         <div>
           <p class="body">Security exists wherever organisational decisions are made. It runs through strategy, governance, operations, procurement, facilities, resilience and countless everyday choices. It influences them all, yet belongs exclusively to none of them.</p>
