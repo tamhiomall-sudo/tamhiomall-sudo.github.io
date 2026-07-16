@@ -438,6 +438,7 @@
     </a>
     <nav class="menu">
       <a href="#home" data-nav="home">Home</a>
+      <!-- TM-LAUNCH: uncomment when live <a href="#thread-model" data-nav="thread-model">The Model</a> TM-LAUNCH end -->
       <a href="#writing" data-nav="writing">Writing</a>
       <a href="#about" data-nav="about">About</a>
       <a href="#contact" data-nav="contact">Contact</a>
@@ -482,24 +483,7 @@
     </section>
   </div>
 
-  <div class="wrap">
-    <section class="band">
-      <div class="two-col">
-        <div>
-          <div class="label">Featured writing</div>
-          <h2>The hidden fifth D</h2>
-          <p class="body">Deter, detect, delay, deny. Four ingredients, no recipe. The argument that decision is the fifth D, the one that binds the other four into a strategy.</p>
-          <div class="actions" style="display:flex; gap:16px; flex-wrap:wrap; margin-top:34px;">
-            <a class="btn solid" href="#article-fifth-d">Read the piece</a>
-            <a class="btn" href="#writing">All writing</a>
-          </div>
-        </div>
-        <div>
-          <blockquote class="feature-quote">Intelligence isn't just a rear-view mirror telling us what has already happened, it's a forward-looking guide to what should happen next.</blockquote>
-        </div>
-      </div>
-    </section>
-  </div>
+  
 
   <div class="tintband">
   <div class="wrap">
@@ -533,33 +517,36 @@
 
   <div class="thread-divider"></div>
 
+  <!-- TM-LAUNCH: uncomment this band when the Thread Model goes live
+  <div class="wrap">
+    <section class="band">
+      <div class="two-col">
+        <div>
+          <div class="label">The Thread Model</div>
+          <h2>One question, explored through every lens.</h2>
+        </div>
+        <div>
+          <p class="body">The lenses above are not a collection of interests. They are one evolving philosophy: security as a thread woven through the decisions an organisation makes. The Thread Model is where that thinking lives, grows, and invites challenge.</p>
+          <div class="actions" style="display:flex; gap:16px; flex-wrap:wrap; margin-top:30px;">
+            <a class="btn solid" href="#thread-model">Explore the model</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  TM-LAUNCH end -->
+
   <div class="wrap">
     <section class="band">
       <div class="label">Take something with you</div>
       <div class="cards">
-        <a class="card" href="compliance-companion.pdf" download>
-          <span class="num">&darr;</span>
+        <a class="card" href="#writing">
+          <span class="num">&rarr;</span>
           <span>
-            <h3>The Compliance Companion</h3>
-            <p>The first in the Companion series: turning compliance obligations into decisions that fit the organisation. The three-layer context model, the conversion workflow, and five working templates. Creative Commons, 37 pages.</p>
+            <h3>The library</h3>
+            <p>The articles and the Companion series, together in one place: the decision-making series in full, and the field tools free to download.</p>
           </span>
-          <span class="tag">Download</span>
-        </a>
-        <a class="card" href="heuristic-awareness-checkpoints.pdf" download>
-          <span class="num">&darr;</span>
-          <span>
-            <h3>Heuristic Awareness Checkpoints</h3>
-            <p>A one-page field tool from the heuristics article: five checkpoints that keep decisions driven by fit, not familiarity. Pin it where strategies get chosen.</p>
-          </span>
-          <span class="tag">Download</span>
-        </a>
-        <a class="card" href="compliance-decision-record.pdf" download>
-          <span class="num">&darr;</span>
-          <span>
-            <h3>Compliance Decision Record</h3>
-            <p>A one-page record from Beyond the Checkbox: five steps and a fill-in form that protect your reasoning, not just your site. Decisions that can explain themselves later.</p>
-          </span>
-          <span class="tag">Download</span>
+          <span class="tag">Browse</span>
         </a>
         <a class="card" href="https://start.me/p/YQJgrN/security-links" target="_blank" rel="noopener">
           <span class="num">&rarr;</span>
@@ -617,10 +604,13 @@
       <div class="kicker">Writing</div>
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem);">Lenses, not lectures.</h1>
       <p class="lead">Each piece here tries to leave you with a different way of seeing a familiar problem, not just another answer. The current series looks at how decisions in physical security are actually made.</p>
+      <!-- TM-LAUNCH: uncomment when the Thread Model goes live
+      <p class="lead" style="margin-top:14px; font-size:1rem;">Everything here is the working out of one evolving philosophy, <a href="#thread-model" style="color:var(--ember);">the Thread Model of Security</a>: one question, explored through six lenses.</p>
+      TM-LAUNCH end -->
     </div>
   </div>
   <div class="wrap">
-    <section class="band" style="border-bottom:none;">
+    <section class="band">
       <div class="label">The decision-making series</div>
       <div class="cards">
         <a class="card" href="#article-risk">
@@ -662,6 +652,37 @@
             <p>Deter, detect, delay, deny. Four ingredients, no recipe. Decision binds them into a strategy.</p>
           </span>
           <span class="tag">Read</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="band" style="border-bottom:none;">
+      <div class="label">The Companion series</div>
+      <p class="body" style="margin-top:0; max-width:62ch; color:var(--ink-soft);">Free working tools drawn from the writing: one Companion per lens as the series grows, with one-page field tools alongside them. Creative Commons, made to be used.</p>
+      <div class="cards" style="margin-top:34px;">
+        <a class="card" href="compliance-companion.pdf" download>
+          <span class="num">&darr;</span>
+          <span>
+            <h3>The Compliance Companion</h3>
+            <p>The first in the series: turning compliance obligations into decisions that fit the organisation. The three-layer context model, the conversion workflow, and five working templates. 37 pages.</p>
+          </span>
+          <span class="tag">Download</span>
+        </a>
+        <a class="card" href="heuristic-awareness-checkpoints.pdf" download>
+          <span class="num">&darr;</span>
+          <span>
+            <h3>Heuristic Awareness Checkpoints</h3>
+            <p>A one-page field tool from the heuristics article: five checkpoints that keep decisions driven by fit, not familiarity.</p>
+          </span>
+          <span class="tag">Download</span>
+        </a>
+        <a class="card" href="compliance-decision-record.pdf" download>
+          <span class="num">&darr;</span>
+          <span>
+            <h3>Compliance Decision Record</h3>
+            <p>A one-page record from Beyond the Checkbox: five steps and a fill-in form that protect your reasoning, not just your site.</p>
+          </span>
+          <span class="tag">Download</span>
         </a>
       </div>
     </section>
@@ -734,6 +755,303 @@
             <p>The risk owner decides what is acceptable, weighs the cost and accepts what remains. Removing a security requirement is not a quiet cost saving. It is a conscious decision to accept additional risk, and it should be treated as such.</p>
           </div>
         </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ THREAD MODEL (unlinked until TM-LAUNCH) ============ -->
+<div class="page" id="page-thread-model">
+  <div class="hero-night" style="position:relative;">
+    <div id="thread-web"> and the <script> block into the hero
+     section markup, as the first child of the element with class "hero-night"
+     (or whatever wraps it). It positions itself absolutely and fills the
+     parent, so the parent needs position: relative (add if it doesn't have it).
+  2. The canvas sits behind the hero text automatically (z-index: 0) - make
+     sure your headline/text wrapper has position: relative and a higher
+     z-index, or add z-index: 1 to it.
+  3. Respects prefers-reduced-motion: the animation freezes on a single
+     static frame for users who've asked for reduced motion.
+  4. Everything is self-contained, no external dependencies.
+
+  TUNING
+  - PULSE SPEED: lower = slower. Currently ~15s per spoke, ~40s per ring lap.
+  - SPOKES / RINGS: change the counts below to make the web denser or sparser.
+  - COLOURS: THREAD_RGB and BG_RGB at the top of the script.
+-->
+
+<div id="thread-web" style="position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;">
+  <canvas id="thread-web-canvas" style="display:block; width:100%; height:100%;"></canvas>
+</div>
+
+<script>
+(function(){
+  const container = document.getElementById('thread-web');
+  const canvas = document.getElementById('thread-web-canvas');
+  const ctx = canvas.getContext('2d');
+
+  // ---- Site colours ----
+  const THREAD_RGB = [240, 236, 228]; // matches hero h1 colour
+  function rgba(rgb, a){ return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`; }
+
+  // ---- Layout ----
+  const SPOKES = 9;
+  const RINGS = 4;
+  const HUB_X_FRAC = 0.32; // off-centre, like an anchor point behind hero text
+  const HUB_Y_FRAC = 0.42;
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  let cx = 0, cy = 0, maxR = 0;
+
+  function resize(){
+    const rect = container.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    cx = W * HUB_X_FRAC;
+    cy = H * HUB_Y_FRAC;
+    maxR = Math.min(W, H) * 0.7;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Slight irregularity per spoke so the web feels hand-spun, not a polygon
+  const angleJitter = [];
+  const radiusJitter = [];
+  for (let s = 0; s < SPOKES; s++){
+    angleJitter.push((Math.random() - 0.5) * 0.15);
+    const rj = [];
+    for (let r = 0; r < RINGS; r++) rj.push((Math.random() - 0.5) * 10);
+    radiusJitter.push(rj);
+  }
+
+  function ringPoint(s, r){
+    const a = (s / SPOKES) * Math.PI * 2 + angleJitter[s];
+    const rad = ((r + 1) / RINGS) * maxR + radiusJitter[s][r];
+    return { x: cx + Math.cos(a) * rad, y: cy + Math.sin(a) * rad };
+  }
+
+  // Pulses - slow. ~15s per spoke traverse, ~40s per ring lap.
+  const spokePulses = [];
+  for (let s = 0; s < SPOKES; s++){
+    if (Math.random() < 0.6) {
+      spokePulses.push({ spoke: s, t: Math.random(), speed: (0.0025 + Math.random() * 0.0025) / 4 });
+    }
+  }
+  const ringPulses = [];
+  for (let r = 0; r < RINGS; r++){
+    if (Math.random() < 0.7) {
+      ringPulses.push({ ring: r, t: Math.random(), speed: (0.0009 + Math.random() * 0.0009) / 4, dir: Math.random() < 0.5 ? 1 : -1 });
+    }
+  }
+
+  // ---- Parallax tilt ----
+  let targetRX = 0, targetRY = 0, curRX = 0, curRY = 0;
+  const parent = container.parentElement;
+  if (parent && !reduceMotion) {
+    parent.style.perspective = parent.style.perspective || '900px';
+    parent.addEventListener('mousemove', (e) => {
+      const r = parent.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5;
+      const ny = (e.clientY - r.top) / r.height - 0.5;
+      targetRY = nx * 8;
+      targetRX = -ny * 8;
+    });
+    parent.addEventListener('mouseleave', () => { targetRX = 0; targetRY = 0; });
+  }
+
+  function applyTilt(){
+    if (reduceMotion) return;
+    curRX += (targetRX - curRX) * 0.06;
+    curRY += (targetRY - curRY) * 0.06;
+    canvas.style.transform = `rotateX(${curRX}deg) rotateY(${curRY}deg) scale(1.02)`;
+    requestAnimationFrame(applyTilt);
+  }
+  applyTilt();
+
+  // ---- Draw ----
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+
+    // Spokes: tapered - thicker & brighter near hub, thin & faint toward edge
+    for (let s = 0; s < SPOKES; s++){
+      const a = (s / SPOKES) * Math.PI * 2 + angleJitter[s];
+      const segments = 12;
+      for (let i = 0; i < segments; i++){
+        const t0 = i / segments, t1 = (i + 1) / segments;
+        const r0 = t0 * maxR, r1 = t1 * maxR;
+        const x0 = cx + Math.cos(a) * r0, y0 = cy + Math.sin(a) * r0;
+        const x1 = cx + Math.cos(a) * r1, y1 = cy + Math.sin(a) * r1;
+        const depth = 1 - t0;
+        ctx.lineWidth = 0.6 + depth * 1.4;
+        ctx.strokeStyle = rgba(THREAD_RGB, 0.08 + depth * 0.32);
+        ctx.beginPath();
+        ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
+        ctx.stroke();
+      }
+    }
+
+    // Rings: inner sharp & bright, outer blurred & faint (near/far depth)
+    for (let r = 0; r < RINGS; r++){
+      const depth = 1 - r / (RINGS - 1);
+      ctx.save();
+      ctx.filter = `blur(${(1 - depth) * 1.8}px)`;
+      ctx.strokeStyle = rgba(THREAD_RGB, 0.1 + depth * 0.3);
+      ctx.lineWidth = 0.7 + depth * 0.8;
+      ctx.beginPath();
+      for (let s = 0; s <= SPOKES; s++){
+        const p = ringPoint(s % SPOKES, r);
+        if (s === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Hub
+    ctx.beginPath();
+    ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(THREAD_RGB, 0.85);
+    ctx.fill();
+
+    if (!reduceMotion){
+      spokePulses.forEach(p => {
+        p.t += p.speed;
+        if (p.t > 1) p.t = 0;
+        const a = (p.spoke / SPOKES) * Math.PI * 2 + angleJitter[p.spoke];
+        const rad = p.t * maxR;
+        const x = cx + Math.cos(a) * rad, y = cy + Math.sin(a) * rad;
+        const depth = 1 - p.t;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.4 + depth * 1.4, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(THREAD_RGB, 0.5 + depth * 0.4);
+        ctx.fill();
+      });
+
+      ringPulses.forEach(p => {
+        p.t += p.speed * p.dir;
+        if (p.t > 1) p.t -= 1;
+        if (p.t < 0) p.t += 1;
+        const posF = p.t * SPOKES;
+        const s0 = Math.floor(posF) % SPOKES;
+        const s1 = (s0 + 1) % SPOKES;
+        const f = posF - Math.floor(posF);
+        const a0 = ringPoint(s0, p.ring), a1 = ringPoint(s1, p.ring);
+        const x = a0.x + (a1.x - a0.x) * f, y = a0.y + (a1.y - a0.y) * f;
+        const depth = 1 - p.ring / (RINGS - 1);
+        ctx.beginPath();
+        ctx.arc(x, y, 1.2 + depth, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(THREAD_RGB, 0.4 + depth * 0.4);
+        ctx.fill();
+      });
+    }
+
+    if (!reduceMotion) requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+
+    <div class="scroll-cue" aria-hidden="true"></div>
+    <div class="inner" style="position:relative; z-index:2;">
+      <div class="kicker">An evolving philosophy</div>
+      <h1 style="font-size: clamp(2rem, 5vw, 3.4rem); max-width: 16ch;">The Thread Model of Security</h1>
+      <p class="lead">Where does security truly exist within an organisation?</p>
+      <p class="lead thread-line">Security exists wherever organisational decisions are made.</p>
+      <p class="lead" style="margin-top:20px; font-size:1rem;">Everything else flows from that. Decision-making is the mechanism by which the thread is woven.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="two-col">
+        <div>
+          <div class="label">The philosophy</div>
+          <h2>Security is a thread, not just a discipline.</h2>
+        </div>
+        <div>
+          <p class="body">Security should not be viewed solely as a department, function or specialist capability. It is a management philosophy that recognises security as a continuous thread woven through every organisational discipline: governance, strategy, operations, procurement, human resources, facilities, continuity and compliance. It influences them all, yet belongs exclusively to none of them.</p>
+          <p class="body">Notice what that definition leaves out: guards, cameras, access control, standards. They remain important, but they are expressions of the thread, not the thread itself. Security is not something organisations possess. It is something they embed.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="thread-divider"></div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="label">Five principles</div>
+      <div class="cards" style="margin-top:34px;">
+        <a class="card soon"><span class="num">01</span><span><h3>Security connects</h3><p>It connects organisational disciplines rather than existing independently within one of them.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">02</span><span><h3>Security enables</h3><p>Its purpose is to support organisational objectives, not compete with them.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">03</span><span><h3>Security is woven through decisions, noticed and unnoticed</h3><p>Every decision can strengthen or weaken the thread, and most of the decisions that matter are never experienced as decisions at all: routines, workarounds, defaults. The thread runs through both.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">04</span><span><h3>Security requires leadership</h3><p>Leadership determines whether security becomes embedded or isolated. Without it, the thread frays.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">05</span><span><h3>Security evolves</h3><p>The thread continually adapts as organisations, environments and risks evolve.</p></span><span class="tag">&nbsp;</span></a>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="two-col">
+        <div>
+          <div class="label">The custodian</div>
+          <h2>Nobody owns security. Somebody must keep the thread.</h2>
+        </div>
+        <div>
+          <p class="body">The traditional framing says the security manager owns security. The Thread Model says the security professional is the custodian of the thread: connecting disciplines, carrying intelligence to the point of decision, influencing leadership, strengthening governance. An advisor, not a gatekeeper.</p>
+          <p class="body">And a boundary the model holds openly: the thread adds to the sharp end, it never replaces it. Detection, response and investigation remain expert capabilities. An organisation that cuts its specialists because security is everyone's job has not woven the thread. It has unpicked it.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="quote-band textured">
+    <div class="wrap">
+      <blockquote>Security is not something organisations possess. It is something they embed.</blockquote>
+      <cite>The Thread Model</cite>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="label">How woven is your organisation?</div>
+      <p class="body" style="margin-top:0; max-width:62ch; color:var(--ink-soft);">Five levels, each with an observable test. The test is always what people actually did in real recent decisions, never what the organisation says about itself.</p>
+      <div class="cards" style="margin-top:34px;">
+        <a class="card soon"><span class="num">1</span><span><h3>Isolated</h3><p>Security appears in decisions only when the department is in the room.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">2</span><span><h3>Coordinated</h3><p>Other functions consult security, but late, after the decision has taken shape.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">3</span><span><h3>Integrated</h3><p>Security features in other disciplines' own processes without being summoned.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">4</span><span><h3>Embedded</h3><p>Recent decision records show security considerations written by people outside security.</p></span><span class="tag">&nbsp;</span></a>
+        <a class="card soon"><span class="num">5</span><span><h3>Woven</h3><p>Adversarial tests find that ordinary routines, not special controls, defeat the path in.</p></span><span class="tag">&nbsp;</span></a>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="two-col">
+        <div>
+          <div class="label">An honest test</div>
+          <h2>What would count against it</h2>
+        </div>
+        <div>
+          <p class="body">A philosophy that cannot lose is a slogan. The Thread Model would be weakened by evidence that isolated security departments consistently match woven organisations on comparable outcomes, or by the maturity levels failing to distinguish organisations that behave differently in practice. The model invites that test.</p>
+          <p class="body">One more honest note for readers in the built environment: the thread here is not the Building Safety Act's golden thread, which is a record of building-safety information. The two share a metaphor because the metaphor is good. They do not share a subject.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="band" style="border-bottom:none;">
+      <p class="statement">The Thread Model of Security is an evolving enterprise security philosophy. It reflects an ongoing exploration of how security is integrated into organisations through leadership, governance and decision-making. Like the organisations it seeks to explain, the model will continue to develop as new ideas, experiences and perspectives emerge.</p>
+      <div class="actions" style="display:flex; gap:16px; flex-wrap:wrap; margin-top:36px;">
+        <a class="btn solid" href="#writing">The writing is the working out</a>
+        <a class="btn" href="#contact">Challenge it</a>
       </div>
     </section>
   </div>
