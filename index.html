@@ -773,22 +773,6 @@
 <!-- ============ THREAD MODEL (unlinked until TM-LAUNCH) ============ -->
 <div class="page" id="page-thread-model">
   <div class="hero-night" style="position:relative;">
-    <div id="thread-web"> and the <script> block into the hero
-     section markup, as the first child of the element with class "hero-night"
-     (or whatever wraps it). It positions itself absolutely and fills the
-     parent, so the parent needs position: relative (add if it doesn't have it).
-  2. The canvas sits behind the hero text automatically (z-index: 0) - make
-     sure your headline/text wrapper has position: relative and a higher
-     z-index, or add z-index: 1 to it.
-  3. Respects prefers-reduced-motion: the animation freezes on a single
-     static frame for users who've asked for reduced motion.
-  4. Everything is self-contained, no external dependencies.
-
-  TUNING
-  - PULSE SPEED: lower = slower. Currently ~15s per spoke, ~40s per ring lap.
-  - SPOKES / RINGS: change the counts below to make the web denser or sparser.
-  - COLOURS: THREAD_RGB and BG_RGB at the top of the script.
--->
 
 <div id="thread-web" style="position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;">
   <canvas id="thread-web-canvas" style="display:block; width:100%; height:100%;"></canvas>
