@@ -446,7 +446,7 @@
     </a>
     <nav class="menu">
       <a href="#home" data-nav="home">Home</a>
-      <!-- TM-LAUNCH: uncomment when live <a href="#thread-model" data-nav="thread-model">The Model</a> TM-LAUNCH end -->
+      <a href="#thread-model" data-nav="thread-model">The Model</a>
       <a href="#writing" data-nav="writing">Writing</a>
       <a href="#about" data-nav="about">About</a>
       <a href="#contact" data-nav="contact">Contact</a>
@@ -527,8 +527,7 @@
 
   <div class="thread-divider"></div>
 
-  <!-- TM-LAUNCH: uncomment this band when the Thread Model goes live
-  <div class="wrap">
+    <div class="wrap">
     <section class="band">
       <div class="two-col">
         <div>
@@ -544,7 +543,6 @@
       </div>
     </section>
   </div>
-  TM-LAUNCH end -->
 
   <div class="wrap">
     <section class="band">
@@ -614,13 +612,22 @@
       <div class="kicker">Writing</div>
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem);">Lenses, not lectures.</h1>
       <p class="lead">Each piece here tries to leave you with a different way of seeing a familiar problem, not just another answer. The current series looks at how decisions in physical security are actually made.</p>
-      <!-- TM-LAUNCH: uncomment when the Thread Model goes live
-      <p class="lead" style="margin-top:14px; font-size:1rem;">Everything here is the working out of one evolving philosophy, <a href="#thread-model" style="color:var(--ember);">the Thread Model of Security</a>: one question, explored through six lenses.</p>
-      TM-LAUNCH end -->
+            <p class="lead" style="margin-top:14px; font-size:1rem;">Everything here is the working out of one evolving philosophy, <a href="#thread-model" style="color:var(--ember);">the Thread Model of Security</a>: one question, explored through five lenses.</p>
     </div>
   </div>
   <div class="wrap">
     <section class="band">
+            <div class="label">The Thread Model</div>
+      <div class="cards" style="margin-bottom:70px;">
+        <a class="card" href="#article-where-security-lives">
+          <span class="num">&rarr;</span>
+          <span>
+            <h3>Where Security Actually Lives</h3>
+            <p>A camera that has stopped nothing in four years, a man in a blue shirt, and the question underneath both: if the camera was never the deterrent, where does security actually live? The piece that introduces the Thread Model.</p>
+          </span>
+          <span class="tag">Read</span>
+        </a>
+      </div>
       <div class="label">The decision-making series</div>
       <div class="cards">
         <a class="card" href="#article-risk">
@@ -770,7 +777,7 @@
   </div>
 </div>
 
-<!-- ============ THREAD MODEL (unlinked until TM-LAUNCH) ============ -->
+<!-- ============ THREAD MODEL ============ -->
 <div class="page" id="page-thread-model">
   <div class="hero-night" style="position:relative;">
 
@@ -810,6 +817,9 @@
     maxR = Math.min(W, H) * 0.7;
   }
   window.addEventListener('resize', resize);
+  // The page is display:none until the router reveals it, so at script time the
+  // container has no box and the canvas would size to 0. Re-size when it gets one.
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(container);
   resize();
 
   // Slight irregularity per spoke so the web feels hand-spun, not a polygon
@@ -988,6 +998,58 @@
       </div>
     </section>
   </div>
+
+  <div class="thread-divider"></div>
+
+  <div class="tintband">
+  <div class="wrap">
+    <section class="band">
+      <div class="label">Three proofs</div>
+      <h2>Everything the model claims was once done, and it worked.</h2>
+      <p class="body">These are from my executive years. They are not arguments, they are what happened when security thinking left the department. Each one proves a different part of the model.</p>
+    </section>
+  </div>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="label">Proves: security connects</div>
+      <h2>The camera was never the deterrent</h2>
+      <p class="body">A camera on its own deters nothing if all it is intended to do is record images. In my younger years one of my mentors, Dr Craig Donald, said something I have never forgotten. Roughly: "The adversary always has a strategy that is in response to yours. They might not always know it, but it exists nonetheless." The adversary strategises around visible hardware faster than we can install it. Having a security system is not a deterrent. Having a process supported by a system to create a consequence is.</p>
+      <p class="body">Deterrence does not sit in the hardware. It exists in the certainty of consequence: the chain that runs from the offence to a courtroom. Placement, angle, lighting, connectivity, power, maintenance, monitoring, response, evidence capturing, prosecution. Every link belongs to a different team, with security a single ingredient in the recipe.</p>
+      <p class="body">This was one of the best lessons I learned in my retail years. We were an early adopter of two-way audio integrated into our video surveillance systems: a control room operator in a remote location could use live audio to interact with an adversary miles away. Few things are as powerful as picking an individual out of a crowd and saying "You there, in the blue shirt. I see what you just did. Someone is coming for you." The certainty of detection, every time, had the adversary on the run. But it did something more than deter. It made the customers feel safe. Ultimately security is not something that we are, but something we perceive to be.</p>
+      <p class="body">Effective security is not based on the cost of the system but on its ability to shape human behaviour. To do that you need solutions that work together to achieve a specific desired behaviour. It matters more that every element is present than that one ingredient is left out to afford the shiniest product on the market.</p>
+      <p class="body">Leave one element out of the recipe and the deterrent is gone, regardless of what was spent on the hardware. That is the main reason security cannot be owned by one department. The deterrent is something everyone owns a component of, and everyone is the beneficiary of.</p>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="label">Proves: the decision and intelligence pillar</div>
+      <h2>It is a business, not just the burglar</h2>
+      <p class="body">When dealing with loss events in larger organisations, incidents of burglary and robbery are not isolated. They are often carried out by the same individuals. For these individuals it is not simply about a robbery or a single burglary. It is what they do. It is their profession.</p>
+      <p class="body">It is not something an individual organisation can solve. When dealing with organised crime it takes a combination of entities working towards a common goal: security, investigators and prosecutors, all working together to deliver a consequence.</p>
+      <p class="body">With this approach we started to look at securing evidence, not just monitoring space. It changed the angle of the camera, the lighting, the height of the camera. Instead of looking at scenes we were looking for evidence. Where did people touch? Did they leave something behind? What physical evidence was there to find? We started keeping track of stock numbers and IMEI numbers, and embossing our stock, all in an effort to create evidence. Evidence that could be traced to a source and linked to an individual.</p>
+      <p class="body">That individual could then be linked to other incidents. The evidence is what leads up the chain, to the buyer and the recruiter organising it.</p>
+      <p class="body">Where are they working from? Why are they targeting us? Those are the questions that ultimately lead to the solutions. We appointed analysts and an investigator to capture the information, create the links, and turn data into intelligence. In other words, to build a whole picture instead of a lone incident on a map.</p>
+      <p class="body">Assisting the police in capturing the burglars, they were able to identify the buyers. Once they identified the buyers, the market disappeared. Once the market was removed, the incidents stopped.</p>
+      <p class="body">Over two years, recorded incidents fell by over sixty percent. That number is the organisation's own, in its annual reports. There was no second programme to credit it to. This was the strategy: take down the organised criminals. Over the same period, other organisations were reporting rising losses.</p>
+      <p class="body">What strikes me now is where the thread had to run to get there. Through psychology, changing control room operations, training new skills, intelligence work, and building relationships with agencies to understand how we could make their work easier. Then out past the edge of the organisation altogether, into the adversary's own supply chain. Not one metre of that ground belonged to the security department.</p>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="band">
+      <div class="label">Proves: security enables</div>
+      <h2>Delivering stock at night</h2>
+      <p class="body">When stock deliveries were moved to night, the security team had to step in.</p>
+      <p class="body">Trucks doing deliveries at night met no traffic. Road time fell by about forty percent. Fewer hours on the road meant fewer accidents, less fuel, fewer trucks and fewer drivers, and runs that were once impossible became possible. But this could only happen in a secure environment: providing access to a store remotely and safely, tracking the truck, preventing syndicates infiltrating the drivers, and moving the opening and closing of the trailers to a remote control room.</p>
+      <p class="body">This then enabled us to remove the bolt seals. We replaced them with locks released remotely from the control room, because a seal has to be cut and the offcuts were discarded on the ground, leading to tyres being shredded on a regular basis. Ending the flat tyres alone paid for the whole system inside a year. The security case supported by the financial one.</p>
+      <p class="body">None of that changed the intent of the security strategy. All of it benefited from a security decision.</p>
+      <p class="body">That is the part the department framing cannot hold. We were not there to reduce road time or to replace bolt seals. We were there to stop stock walking out. But a decision made in one discipline lands in every discipline it touches, and the ledger it lands on is rarely ours.</p>
+    </section>
+  </div>
+
 
   <div class="wrap">
     <section class="band">
@@ -1411,6 +1473,65 @@
         <p>Strategy always comes before tactics. As Sun Tzu reminds us, the real victory is secured long before the first move is made. In practice, this means that the choices leaders make (what to deter, what to detect, where delay will matter, and what must be denied) set the stage for everything that follows.</p>
         <p>The world we operate in is full of uncertainty. Threats shift, evolve, and often appear where we least expect them. That's why decision advantage matters: it allows organisations to learn faster, adapt their posture, and stay one step ahead while adversaries are still catching up. In this sense, intelligence isn't just a rear-view mirror telling us what has already happened, it's a forward-looking guide to what should happen next.</p>
         <p>When intelligence is tied directly to decision, it becomes a living cycle: decisions drive outcomes, outcomes generate data, and that data sharpens the next decision. This feedback loop turns security from a static checklist into a dynamic system of learning, foresight, and adaptation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ARTICLE: WHERE SECURITY ACTUALLY LIVES (Thread Model launch) ============ -->
+<div class="page" id="page-article-where-security-lives">
+  <div class="article">
+    <div class="inner">
+      <a class="back" href="#writing">&larr; Back to writing</a>
+      <h1>Where Security Actually Lives</h1>
+      <div class="meta">Introducing the Thread Model &middot; First published July 2026</div>
+      <div class="content">
+        <p>There is a camera above the loading bay. Clear view, good lighting, records everything. In four years it has never stopped a single thing.</p>
+        <p>I have stood under a lot of those cameras. Early in my career I would have called one a deterrent. I don't anymore. A camera is a witness: one with a perfect memory and no authority. It can tell you exactly what happened, but it cannot influence what happens next.</p>
+        <p>That left me with a question I couldn't answer for a long time. If the camera wasn't the deterrent, what was? I kept looking at the technology when I should have been looking at everything connected to it.</p>
+
+        <h2>The chain nobody owned</h2>
+        <p>What stops someone is the certainty of consequence, not the chance of being seen. The camera only provides the chance of being seen. Whether that sight becomes consequence depends on everything that follows.</p>
+        <p>The more I thought about it, the more deterrence began to look like a chain. Placement. Angle. Lighting. Connectivity. Power. Maintenance. Monitoring. Response. Evidence. Prosecution. Every link has a purpose. Break one and the whole thing weakens. The camera still records, but the certainty disappears. What remains looks like security, but behaves more like theatre.</p>
+        <p>The uncomfortable part was realising how little of that chain belonged to security. Lighting belonged to the electrical engineer. Power and connectivity belonged to facilities and IT. Maintenance belonged to the service provider. Response belonged to operations. Evidence and prosecution belonged to people outside the organisation altogether.</p>
+        <p>The security department owned only one link, yet we had convinced ourselves that buying and managing that link was the same as providing security.</p>
+
+        <h2>The man in the blue shirt</h2>
+        <p>I saw the difference during my retail years, when we were early adopters of two-way audio integrated into our surveillance system. An operator sitting a hundred miles away could speak directly into a car park.</p>
+        <p>One afternoon he picked a man out of a crowd.</p>
+        <blockquote>You there, in the blue shirt. I see what you just did. Someone is coming for you.</blockquote>
+        <p>The man stopped, looked around, and walked away.</p>
+        <p>It wasn't the camera that changed his behaviour. It was the certainty that the observation had become action. In that moment the technology disappeared. What mattered was that the man understood someone knew, someone cared and someone was already responding.</p>
+        <p>Something else happened that I hadn't expected. Customers felt safer. The equipment hadn't changed, but the organisation had become visible through it. People weren't responding to the presence of cameras. They were responding to the presence of attention.</p>
+        <p>That was the point I started to realise security is as much about confidence as control. People judge it less by the technology they can see than by the intent they believe sits behind it.</p>
+
+        <h2>What the thread carries</h2>
+        <p>For years I struggled to explain why all of this felt connected until I found myself thinking about a spider's web.</p>
+        <p>We usually think of a web as a trap. It isn't. The spider catches the fly. The web is something else entirely. It is a network of threads connecting the spider to its environment. Every strand exists to carry information. When something touches one corner of the web, the vibration travels to the only place that matters: the point where a decision can be made.</p>
+        <p>That is much closer to the way I now think about security.</p>
+        <p>The camera sees. The guard observes. Procurement notices an unusual supplier. A controller questions a journey that makes no sense. Facilities notices a door that no longer closes properly. None of those observations achieves anything on its own. They matter because they are connected to a process, driven by an intent and capable of producing an action. The thread is what gives each observation meaning.</p>
+        <p>Looking back, I realised the chain I had been describing was really just another way of seeing the same thing. Each link existed to preserve the thread from observation to consequence. Break the thread and every component still performs its individual task. The camera records. The guard watches. Procurement raises a concern. But the observation never reaches the place where it can change an outcome.</p>
+        <p>The thread is not simply communication. It is the path that carries intent through an organisation until observation becomes consequence.</p>
+
+        <h2>Security is a thread, not just a discipline</h2>
+        <p>This is the conclusion I have arrived at, although experience continues to test it.</p>
+        <p>Security does not live in a department. It lives wherever decisions are made. It lives in procurement decisions, maintenance schedules, facilities management, IT architecture, operational routines and a thousand small choices that nobody experiences as security decisions at all. It runs through every discipline while belonging exclusively to none of them.</p>
+        <p>That changes what I think the role of the security professional really is. We often behave as though we own security, when perhaps we are only its custodians. The work is not to own the thread but to keep it intact: to connect disciplines, preserve intent, ensure observations travel to the people who can act and notice when part of the thread begins to fray.</p>
+        <p>Security is less a function than a property of a connected organisation.</p>
+
+        <h2>Where I could be wrong</h2>
+        <p>Every model deserves a boundary, otherwise it becomes ideology.</p>
+        <p>The thread strengthens specialist practice; it does not replace it. Detection, investigation and response remain expert disciplines requiring judgement and experience. An organisation that concludes security is now everybody's responsibility and therefore reduces its specialists has misunderstood the argument completely.</p>
+        <p>The thread carries information.</p>
+        <p>People still decide what to do with it.</p>
+
+        <h2>An invitation, not a doctrine</h2>
+        <p>I am not offering a framework or a methodology. This is simply one practitioner's attempt to describe what experience has slowly taught him. It explains more of what I have seen than the models I used to rely on, but that does not make it complete.</p>
+        <p>If it is wrong, I would rather discover that than defend it. If it proves useful, then take it, challenge it and improve it.</p>
+        <p>The camera above the loading bay is still there. It still records everything that passes beneath it. What changed was never the camera. What changed was my understanding of where security lived.</p>
+        <p>It was never in the lens.</p>
+        <p>It was always in the thread that connected the lens to people, process and purpose.</p>
+        <p>Break that thread and the camera becomes exactly what it has always been: a witness with a perfect memory and no authority.</p>
       </div>
     </div>
   </div>
