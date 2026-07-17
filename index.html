@@ -328,6 +328,9 @@
   .lens { background: var(--paper); padding: 36px 30px; text-decoration: none; transition: background 0.15s ease; }
   .lens:hover { background: var(--accent-soft); }
   .lens p { font-size: 1.25rem; line-height: 1.35; }
+  .lens.soon { cursor: default; }
+  .lens.soon:hover { background: var(--paper); }
+  .lens.soon p, .lens.soon span { color: var(--ink-soft); }
   /* Thread motif */
   .label::before {
     content: ""; display: inline-block; width: 38px; height: 1px;
@@ -520,6 +523,10 @@
           <p class="serif">Decision is the recipe that binds the four Ds.</p>
           <span>On decision</span>
         </a>
+        <div class="lens soon">
+          <p class="serif">A scenario is not a prediction. It is a decision, rehearsed.</p>
+          <span>On scenarios &middot; soon</span>
+        </div>
       </div>
     </section>
   </div>
@@ -612,7 +619,7 @@
       <div class="kicker">Writing</div>
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem);">Lenses, not lectures.</h1>
       <p class="lead">Each piece here tries to leave you with a different way of seeing a familiar problem, not just another answer. The current series looks at how decisions in physical security are actually made.</p>
-            <p class="lead" style="margin-top:14px; font-size:1rem;">Everything here is the working out of one evolving philosophy, <a href="#thread-model" style="color:var(--ember);">the Thread Model of Security</a>: one question, explored through five lenses.</p>
+            <p class="lead" style="margin-top:14px; font-size:1rem;">Everything here is the working out of one evolving philosophy, <a href="#thread-model" style="color:var(--ember);">the Thread Model of Security</a>: one question, explored through six lenses.</p>
     </div>
   </div>
   <div class="wrap">
@@ -670,6 +677,14 @@
           </span>
           <span class="tag">Read</span>
         </a>
+        <div class="card soon">
+          <span class="num">06</span>
+          <span>
+            <h3>On scenarios: the decision-focused nature of scenario planning</h3>
+            <p>Scenario planning is usually sold as a way to see the future. Its real value is closer to home: it is a way to rehearse a decision before the moment demands it. The sixth and final lens in the series.</p>
+          </span>
+          <span class="tag">Soon</span>
+        </div>
       </div>
     </section>
 
