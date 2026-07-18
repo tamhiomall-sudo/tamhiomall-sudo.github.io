@@ -635,18 +635,10 @@ function exportData(){
   renderBackupBanner();
 }
 function renderBackupBanner(){
+  // Data now syncs to the server, so the backup nag is no longer needed.
+  // Export/Import stay available as a manual backup and device-migration option.
   const banner = document.getElementById('backupBanner');
-  const text = document.getElementById('backupBannerText');
-  const daysSince = state.lastExport ? daysBetween(state.lastExport, todayStr()) : null;
-  if (daysSince === null){
-    text.textContent = "You haven't backed up yet. Export keeps a copy safe if the browser data ever gets cleared.";
-    banner.classList.add('show');
-  } else if (daysSince >= 7){
-    text.textContent = 'Last backup was ' + daysSince + ' days ago. Worth exporting a fresh copy.';
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
+  if (banner) banner.classList.remove('show');
 }
 function importData(evt){
   const file = evt.target.files[0];
