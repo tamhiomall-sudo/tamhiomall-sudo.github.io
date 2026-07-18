@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Tools · Adriaan Bosch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0e1117; --card:#181c24; --line:#2a2e36; --text:#f0ece4; --dim:#9a948a;
+    --accent:#d98e4a; --good:#4ecb8d; --warn:#e6c05a; --bad:#e66a5a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text); margin: 0;
+    font: 15px/1.5 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  a { color: var(--accent); }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; border-bottom: 1px solid var(--line);
+  }
+  .brand { font-family: 'Fraunces', Georgia, serif; font-size: 18px; letter-spacing: -0.01em; }
+  .brand small { color: var(--dim); font-family: 'Inter', sans-serif; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.14em; display: block; margin-top: 1px; }
+  .backlink { font-size: 12.5px; color: var(--dim); text-decoration: none; }
+  .backlink:hover { color: var(--text); }
+
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 34px 32px; width: 100%; max-width: 380px;
+  }
+  .card h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 26px;
+    margin: 0 0 6px; letter-spacing: -0.01em; }
+  .card .sub { color: var(--dim); font-size: 13px; margin: 0 0 24px; }
+  label { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--dim); margin: 16px 0 6px; }
+  input {
+    width: 100%; padding: 11px 12px; font: 15px 'Inter', sans-serif;
+    background: #0f131a; color: var(--text); border: 1px solid var(--line); border-radius: 8px;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  button.primary {
+    width: 100%; margin-top: 24px; padding: 12px; cursor: pointer;
+    font: 600 13px 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em;
+    background: var(--accent); color: #16110a; border: none; border-radius: 8px;
+  }
+  button.primary:hover { filter: brightness(1.06); }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+  .msg { margin-top: 18px; font-size: 13px; min-height: 18px; }
+  .msg.error { color: var(--bad); }
+  .msg.ok { color: var(--good); }
+  .notice {
+    background: rgba(230,192,90,0.08); border: 1px solid var(--warn); border-radius: 8px;
+    padding: 14px 16px; font-size: 13px; color: var(--warn); margin-bottom: 22px;
+  }
+  .hidden { display: none !important; }
+
+  /* Authenticated shell (the tracker mounts here in checkpoint 3) */
+  #app .placeholder {
+    text-align: center; color: var(--dim); max-width: 460px;
+  }
+  #app .placeholder h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    color: var(--text); font-size: 22px; margin: 0 0 10px; }
+  .signout { background: none; border: 1px solid var(--line); color: var(--dim);
+    font: 500 12px 'Inter', sans-serif; padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+  .signout:hover { color: var(--text); border-color: var(--dim); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Tools<small>adriaanbosch.net</small></div>
+  <div id="topbar-right">
+    <a class="backlink" href="/">&larr; Back to the site</a>
+  </div>
+</div>
+
+<main>
+  <!-- Login view -->
+  <div class="card" id="login">
+    <h1>Private area</h1>
+    <p class="sub">Sign in to reach your tools.</p>
+    <div class="notice hidden" id="config-notice">
+      Not connected to Supabase yet. Add the project URL and anon key in
+      <code>tools/index.html</code> to enable sign-in.
+    </div>
+    <form id="login-form">
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" required>
+      <button type="submit" class="primary" id="signin-btn">Sign in</button>
+    </form>
+    <div class="msg" id="login-msg" role="status" aria-live="polite"></div>
+  </div>
+</main>
+
+<!-- Supabase JS SDK (public, safe to load from CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  // Connection values live in config.js (shared with tracker.html).
+  const SUPABASE_URL = window.TOOLS_CONFIG.SUPABASE_URL;
+  const SUPABASE_ANON_KEY = window.TOOLS_CONFIG.SUPABASE_ANON_KEY;
+
+  const el = (id) => document.getElementById(id);
+  const configured = !SUPABASE_URL.startsWith('REPLACE') && !SUPABASE_ANON_KEY.startsWith('REPLACE');
+  let sb = null;
+
+  function showLogin() { el('login').classList.remove('hidden'); }
+  // A live session means we go straight to the tracker.
+  function goToApp() { location.replace('tracker.html'); }
+
+  if (!configured) {
+    // Placeholder mode: prove the UI works before the backend exists.
+    el('config-notice').classList.remove('hidden');
+    el('signin-btn').disabled = true;
+  } else {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) goToApp(); else showLogin();
+    });
+
+    sb.auth.onAuthStateChange((_event, session) => {
+      if (session) goToApp(); else showLogin();
+    });
+
+    el('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = el('login-msg');
+      msg.className = 'msg'; msg.textContent = 'Signing in...';
+      el('signin-btn').disabled = true;
+      const { error } = await sb.auth.signInWithPassword({
+        email: el('email').value.trim(),
+        password: el('password').value,
+      });
+      el('signin-btn').disabled = false;
+      if (error) { msg.className = 'msg error'; msg.textContent = error.message; }
+      else { msg.textContent = ''; }
+      // success: onAuthStateChange fires -> goToApp()
+    });
+  }
+</script>
+
+</body>
+</html>
