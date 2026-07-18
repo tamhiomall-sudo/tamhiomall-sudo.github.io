@@ -246,7 +246,8 @@ h2.section { font-size:14px; text-transform:uppercase; letter-spacing:.06em; col
   <span class="who" id="whoami">&nbsp;</span>
   <span class="syncstatus" id="syncStatus">connecting...</span>
   <span class="spacer"></span>
-  <a href="/">Back to the site</a>
+  <a href="./">Your tools</a>
+  <a href="/">Main site</a>
   <button id="signout">Sign out</button>
 </div>
 
@@ -398,6 +399,9 @@ h2.section { font-size:14px; text-transform:uppercase; letter-spacing:.06em; col
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
+  // Wrapped in a function so none of these names (STORE_KEY etc.) leak into
+  // the global scope and collide with the tracker's own top-level consts.
+  (function(){
   const C = window.TOOLS_CONFIG;
   const TOOL = 'work-tracker';
   const STORE_KEY = 'worktracker_v1';        // must match the tracker's own key
@@ -454,5 +458,6 @@ h2.section { font-size:14px; text-transform:uppercase; letter-spacing:.06em; col
   document.getElementById('signout').addEventListener('click', async () => { await sb.auth.signOut(); location.replace('./'); });
   sb.auth.onAuthStateChange((_e, sess) => { if (!sess) location.replace('./'); });
   boot();
+  })();
 </script>
 </body></html>

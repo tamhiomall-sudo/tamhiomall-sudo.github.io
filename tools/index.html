@@ -62,15 +62,26 @@
   }
   .hidden { display: none !important; }
 
-  /* Authenticated shell (the tracker mounts here in checkpoint 3) */
-  #app .placeholder {
-    text-align: center; color: var(--dim); max-width: 460px;
-  }
-  #app .placeholder h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 400;
-    color: var(--text); font-size: 22px; margin: 0 0 10px; }
   .signout { background: none; border: 1px solid var(--line); color: var(--dim);
     font: 500 12px 'Inter', sans-serif; padding: 7px 14px; border-radius: 8px; cursor: pointer; }
   .signout:hover { color: var(--text); border-color: var(--dim); }
+
+  /* Tool launcher (shown once signed in) */
+  .launcher { width: 100%; max-width: 660px; }
+  .launcher-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 26px; }
+  .launcher h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .launcher .sub { color: var(--dim); font-size: 13px; margin: 0; }
+  .toolgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .tool { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px 22px 24px; text-decoration: none; color: var(--text); display: block;
+    transition: border-color 0.15s ease; }
+  .tool:hover { border-color: var(--accent); }
+  .tool .accent { width: 26px; height: 4px; border-radius: 2px; background: var(--accent); margin-bottom: 16px; }
+  .tool-name { font-family: 'Fraunces', Georgia, serif; font-size: 18px; margin-bottom: 6px; }
+  .tool-desc { color: var(--dim); font-size: 13px; line-height: 1.45; }
+  .tool.soon { opacity: 0.5; border-style: dashed; cursor: default; }
+  .tool.soon:hover { border-color: var(--line); }
+  .tool.soon .accent { background: var(--dim); }
 </style>
 </head>
 <body>
@@ -100,6 +111,29 @@
     </form>
     <div class="msg" id="login-msg" role="status" aria-live="polite"></div>
   </div>
+
+  <!-- Tool launcher (shown once signed in) -->
+  <div class="launcher hidden" id="launcher">
+    <div class="launcher-head">
+      <div>
+        <h1>Your tools</h1>
+        <p class="sub">Signed in as <span id="who"></span></p>
+      </div>
+      <button class="signout" id="signout-btn">Sign out</button>
+    </div>
+    <div class="toolgrid">
+      <a class="tool" href="tracker.html">
+        <div class="accent"></div>
+        <div class="tool-name">Work Tracker</div>
+        <div class="tool-desc">Board, calendar, projects, notes, routines and a focus timer. Synced across your devices.</div>
+      </a>
+      <div class="tool soon">
+        <div class="accent"></div>
+        <div class="tool-name">More to come</div>
+        <div class="tool-desc">This area is built to hold more tools over time, all behind the same login.</div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <!-- Supabase JS SDK (public, safe to load from CDN) -->
@@ -114,9 +148,13 @@
   const configured = !SUPABASE_URL.startsWith('REPLACE') && !SUPABASE_ANON_KEY.startsWith('REPLACE');
   let sb = null;
 
-  function showLogin() { el('login').classList.remove('hidden'); }
-  // A live session means we go straight to the tracker.
-  function goToApp() { location.replace('tracker.html'); }
+  function showLogin() { el('launcher').classList.add('hidden'); el('login').classList.remove('hidden'); }
+  // A live session shows the tool launcher (pick a tool). Tools live on their own pages.
+  function showLauncher(session) {
+    el('login').classList.add('hidden');
+    el('launcher').classList.remove('hidden');
+    el('who').textContent = session?.user?.email || '';
+  }
 
   if (!configured) {
     // Placeholder mode: prove the UI works before the backend exists.
@@ -126,11 +164,11 @@
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     sb.auth.getSession().then(({ data }) => {
-      if (data.session) goToApp(); else showLogin();
+      if (data.session) showLauncher(data.session); else showLogin();
     });
 
     sb.auth.onAuthStateChange((_event, session) => {
-      if (session) goToApp(); else showLogin();
+      if (session) showLauncher(session); else showLogin();
     });
 
     el('login-form').addEventListener('submit', async (e) => {
@@ -145,8 +183,10 @@
       el('signin-btn').disabled = false;
       if (error) { msg.className = 'msg error'; msg.textContent = error.message; }
       else { msg.textContent = ''; }
-      // success: onAuthStateChange fires -> goToApp()
+      // success: onAuthStateChange fires -> showLauncher()
     });
+
+    el('signout-btn').addEventListener('click', () => sb.auth.signOut());
   }
 </script>
 
