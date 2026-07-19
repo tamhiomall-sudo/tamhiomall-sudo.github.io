@@ -41,6 +41,17 @@
   .layerchip.local { background:rgba(154,148,138,.15); color:var(--dim); }
   .layerchip.shareable { background:rgba(78,203,141,.12); color:var(--good); }
   .warnline { margin-top:10px; font-size:12px; color:var(--warn); }
+  /* property editor */
+  .props { margin-top:6px; border:1px solid var(--line); border-radius:9px; padding:6px 12px 12px; }
+  .props .caption { font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); margin:10px 0 4px; }
+  .prow { display:flex; align-items:center; gap:8px; margin-top:8px; }
+  .prow .key { flex:0 0 118px; font-family:ui-monospace,Menlo,monospace; font-size:12.5px; color:var(--accent); }
+  .prow input.key { flex:0 0 118px; padding:8px 10px; }
+  .prow .val { flex:1; padding:8px 10px; }
+  .prow .rm { flex:0 0 auto; background:none; border:none; color:var(--dim); cursor:pointer; font-size:15px; padding:0 4px; }
+  .prow .rm:hover { color:var(--bad); }
+  .prow .hint { flex:0 0 100%; font-size:10.5px; color:var(--dim); margin:2px 0 0 126px; }
+  #addProp { margin-top:12px; font-size:11.5px; }
   .item { border:1px solid var(--line); border-radius:9px; padding:12px 14px; margin-bottom:10px; background:#1b202a; }
   .item .top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
   .item .t { font-weight:500; }
@@ -53,7 +64,7 @@
   .cpdsummary { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
   .cpdstat { background:#1b202a; border:1px solid var(--line); border-radius:9px; padding:10px 16px; flex:1 1 100px; }
   .cpdstat .n { font-family:'Fraunces',Georgia,serif; font-size:24px; } .cpdstat .l { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.05em; }
-  .foot { color:var(--dim); font-size:11.5px; margin-top:22px; }
+  .foot { color:var(--dim); font-size:11.5px; margin-top:22px; max-width:90ch; }
 </style>
 </head>
 <body>
@@ -80,33 +91,44 @@
       <h2>New note</h2>
       <label for="dest">Where does this go?</label>
       <select id="dest">
-        <option value="learning-note">Learning note (course, CPD)</option>
-        <option value="meeting-note">Meeting note</option>
-        <option value="plannetjie">Idea (Plannetjie)</option>
-        <option value="concept">Concept (wiki page)</option>
-        <option value="resource">Resource / link</option>
-        <option value="note">Inbox (decide later)</option>
+        <optgroup label="Notes (local working notes)">
+          <option value="learning-note">Learning note (course, CPD)</option>
+          <option value="meeting-note">Meeting note</option>
+          <option value="design-note">Design note</option>
+          <option value="resource">Resource / link</option>
+          <option value="note">Inbox (decide later)</option>
+        </optgroup>
+        <optgroup label="Wiki (new page)">
+          <option value="plannetjie">Plannetjie (idea)</option>
+          <option value="concept">Concept</option>
+          <option value="standard">Standard</option>
+          <option value="synthesis">Synthesis</option>
+          <option value="person">Person</option>
+          <option value="leadership">Leadership</option>
+          <option value="tooling">Tooling</option>
+        </optgroup>
+        <optgroup label="Append to an existing file">
+          <option value="decision">Decision (decisions.md)</option>
+          <option value="definition">Definition (definitions.md)</option>
+          <option value="prompt">Prompt (prompts.md)</option>
+        </optgroup>
       </select>
       <div id="destInfo" style="margin-top:8px;"></div>
 
-      <label for="title">Title</label>
+      <label for="title">title</label>
       <input id="title" autocomplete="off" placeholder="A short, clear title">
 
-      <div id="f-form" class="hide">
-        <label for="form">Form</label>
-        <select id="form"><option value="framework">framework</option><option value="method">method</option><option value="reference">reference</option><option value="domain">domain</option></select>
+      <label style="margin-bottom:0;">Properties</label>
+      <div class="props" id="propBox">
+        <div class="caption">frontmatter</div>
+        <div id="propList"></div>
+        <button class="btn" id="addProp">+ Add property</button>
       </div>
-      <div id="f-subject"><label for="subject">Subject / topic</label><input id="subject" autocomplete="off"></div>
-      <div id="f-source"><label for="source">Source (course, book, link)</label><input id="source" autocomplete="off"></div>
-      <div id="f-project" class="hide"><label for="project">Project code (optional)</label><input id="project" autocomplete="off"></div>
+
       <div id="f-training" class="hide"><label for="trainingLink">Link to a training entry (optional)</label><select id="trainingLink"><option value="">None</option></select></div>
 
-      <label for="tags">Tags (comma separated)</label>
-      <input id="tags" list="taglist" autocomplete="off">
-      <datalist id="taglist"></datalist>
-
       <label for="body">Note (markdown)</label>
-      <textarea id="body" placeholder="Type freely. Markdown works: # headings, - bullets, **bold**."></textarea>
+      <textarea id="body" placeholder="Type freely. Markdown works: use ## for sections (the title is the # heading)."></textarea>
 
       <button class="primary" id="saveNote">Save note</button>
       <input type="hidden" id="editId" value="">
@@ -114,7 +136,7 @@
 
     <div class="panel">
       <h2>Saved notes <button class="btn" id="exportAll" style="font-size:11px;">Export all .md</button></h2>
-      <input class="filter" id="noteFilter" placeholder="Filter by title, subject or tag" autocomplete="off">
+      <input class="filter" id="noteFilter" placeholder="Filter by title or tag" autocomplete="off">
       <div id="noteList"></div>
     </div>
   </div>
@@ -152,6 +174,7 @@
   </div>
 </div>
 
+<datalist id="taglist"></datalist>
 <p class="foot" id="foot"></p>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -165,19 +188,51 @@
 
   const CONTROLLED_TAGS = ['strategy','decision-making','compliance','governance','methodology','standard','risk','resilience','theory','core-reference','strategic-approaches','operational-requirements','design-process','operations','hvm','cpted','counter-terrorism','building-envelope','blast','fire','security-systems','screening','lighting','saudi-arabia','leadership','planning','tooling','ai'];
 
-  // dest -> how it exports
-  const DESTS = {
-    'learning-note': { label:'Learning note', folder:'Cowork/Notes/Learning', layer:'local', wiki:false, fields:['subject','source'] },
-    'meeting-note':  { label:'Meeting note',  folder:'Cowork/Notes/Meetings', layer:'local', wiki:false, fields:['subject','project'] },
-    'plannetjie':    { label:'Plannetjie',    folder:'Cowork/Wiki/Plannetjies', layer:'shareable', wiki:true, fields:['source'] },
-    'concept':       { label:'Concept',       folder:'Cowork/Wiki/Concepts', layer:'shareable', wiki:true, fields:['form','source'] },
-    'resource':      { label:'Resource',      folder:'Cowork/Notes/Resources', layer:'local', wiki:false, fields:['source','subject'] },
-    'note':          { label:'Inbox note',    folder:'Cowork/Notes/Inbox', layer:'local', wiki:false, fields:[] },
+  // How each property is written into YAML.
+  const PROP_DEFS = {
+    subject: { kind:'text' },
+    source:  { kind:'text' },
+    project: { kind:'text' },
+    form:    { kind:'enum', options:['framework','method','reference','domain'] },
+    'source-status': { kind:'enum', options:['licensed','freely-published','public-domain','restricted-client'], hint:'restricted-client forces sensitivity to local' },
+    standard: { kind:'text', hint:'designation code, e.g. ISO 22343' },
+    number:   { kind:'text', hint:'the next D number in decisions.md' },
+    status:   { kind:'enum', options:['adopted','superseded'] },
+    tags:    { kind:'list',  hint:'comma separated' },
+    sources: { kind:'listq', hint:'comma separated' },
+    related: { kind:'links', hint:'page names or [[links]], comma separated, for Obsidian linking' },
   };
+  // Mirrors the vault. mode 'page' writes a new .md; mode 'append' writes a snippet to paste in.
+  const DESTS = {
+    // Notes (local working notes)
+    'learning-note': { label:'Learning note', mode:'page', folder:'Cowork/Notes/Learning', layer:'local', wiki:false, props:['subject','source','project','related','tags'] },
+    'meeting-note':  { label:'Meeting note',  mode:'page', folder:'Cowork/Notes/Meetings', layer:'local', wiki:false, props:['subject','project','related','tags'] },
+    'design-note':   { label:'Design note',   mode:'page', folder:'Cowork/Notes/Design Notes', layer:'local', wiki:false, props:['subject','project','related','tags'] },
+    'resource':      { label:'Resource',      mode:'page', folder:'Cowork/Notes/Resources', layer:'local', wiki:false, props:['source','subject','project','related','tags'] },
+    'note':          { label:'Inbox note',    mode:'page', folder:'Cowork/Notes/Inbox', layer:'local', wiki:false, props:['subject','project','related','tags'] },
+    // Wiki (new page)
+    'plannetjie':    { label:'Plannetjie', mode:'page', folder:'Cowork/Wiki/Plannetjies', layer:'shareable', wiki:true, props:['sources','tags'] },
+    'concept':       { label:'Concept',    mode:'page', folder:'Cowork/Wiki/Concepts', layer:'shareable', wiki:true, props:['form','sources','tags'] },
+    'standard':      { label:'Standard',   mode:'page', folder:'Cowork/Wiki/Standards', layer:'shareable', wiki:true, props:['source-status','standard','sources','tags'], seedTags:'standard' },
+    'synthesis':     { label:'Synthesis',  mode:'page', folder:'Cowork/Wiki/Synthesis', layer:'shareable', wiki:true, props:['sources','tags'] },
+    'person':        { label:'Person',     mode:'page', folder:'Cowork/Wiki/People', layer:'shareable', wiki:true, props:['sources','tags'] },
+    'leadership':    { label:'Leadership', mode:'page', folder:'Cowork/Wiki/Leadership', layer:'shareable', wiki:true, props:['sources','tags'], seedTags:'leadership' },
+    'tooling':       { label:'Tooling',    mode:'page', folder:'Cowork/Wiki/Tooling', layer:'shareable', wiki:true, props:['sources','tags'], seedTags:'tooling' },
+    // Append to an existing single file
+    'decision':      { label:'Decision',   mode:'append', file:'Cowork/decisions.md',   layer:'shareable', wiki:false, props:['number','status'] },
+    'definition':    { label:'Definition', mode:'append', file:'Cowork/definitions.md', layer:'shareable', wiki:false, props:[] },
+    'prompt':        { label:'Prompt',     mode:'append', file:'Cowork/prompts.md',     layer:'shareable', wiki:false, props:[] },
+  };
+  // Standards drawn from a restricted client source stay local (the documented exception).
+  function layerFor(dest, props){
+    if (dest === 'standard' && props && props['source-status'] === 'restricted-client') return 'local';
+    return DESTS[dest].layer;
+  }
 
   let state = { notes: [], training: [] };
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
   const today = () => new Date().toISOString().slice(0,10);
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
   // ---------- persistence ----------
   let saveTimer = null;
@@ -197,31 +252,93 @@
     }, 600);
   }
 
+  // ---------- property editor ----------
+  function propRow(key, val, custom){
+    const def = PROP_DEFS[key] || { kind:'text' };
+    const row = document.createElement('div'); row.className = 'prow' + (custom?' custom':'');
+    let keyHtml = custom
+      ? '<input class="key" placeholder="property" value="'+escapeHtml(key)+'">'
+      : '<span class="key">'+escapeHtml(key)+'</span>';
+    let valHtml;
+    if (def.kind === 'enum') {
+      valHtml = '<select class="val" data-key="'+escapeHtml(key)+'">'+def.options.map(o=>'<option'+(o===val?' selected':'')+'>'+o+'</option>').join('')+'</select>';
+    } else {
+      valHtml = '<input class="val" data-key="'+escapeHtml(key)+'" value="'+escapeHtml(val||'')+'" autocomplete="off"'+(key==='tags'?' list="taglist"':'')+'>';
+    }
+    row.innerHTML = keyHtml + valHtml + (custom ? '<button class="rm" title="remove">&times;</button>' : '');
+    if (def.hint) { const h=document.createElement('div'); h.className='hint'; h.textContent=def.hint; row.appendChild(h); }
+    if (custom) row.querySelector('.rm').onclick = () => row.remove();
+    return row;
+  }
+  function renderProps(dest, props){
+    const box = $('propList'); box.innerHTML=''; props = props || {};
+    const std = DESTS[dest].props;
+    std.forEach(k => box.appendChild(propRow(k, props[k], false)));
+    Object.keys(props).forEach(k => { if(!std.includes(k)) box.appendChild(propRow(k, props[k], true)); });
+  }
+  function readProps(){
+    const out = {};
+    document.querySelectorAll('#propList .prow').forEach(row => {
+      const custom = row.classList.contains('custom');
+      const key = custom ? (row.querySelector('.key').value.trim()) : row.querySelector('.key').textContent.trim();
+      const val = row.querySelector('.val').value.trim();
+      if (key && val) out[key] = val;
+    });
+    return out;
+  }
+
   // ---------- markdown export ----------
   function slug(s){ return (s||'untitled').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60) || 'untitled'; }
-  function yamlList(arr){ return '[' + arr.join(', ') + ']'; }
+  function q(s){ return '"' + String(s).replace(/"/g,'\\"') + '"'; }
+  function emitProp(key, val){
+    const def = PROP_DEFS[key];
+    if (def && def.kind === 'list') {
+      const arr = val.split(',').map(x=>x.trim()).filter(Boolean);
+      return key + ': [' + arr.join(', ') + ']\n';
+    }
+    if (def && def.kind === 'listq') {
+      const arr = val.split(',').map(x=>x.trim()).filter(Boolean);
+      return key + ':\n' + arr.map(x=>'  - ' + q(x)).join('\n') + '\n';
+    }
+    if (def && def.kind === 'links') {
+      const arr = val.split(',').map(x=>x.trim()).filter(Boolean).map(x => /^\[\[.*\]\]$/.test(x) ? x : '[['+x+']]');
+      return key + ':\n' + arr.map(x=>'  - ' + q(x)).join('\n') + '\n';
+    }
+    if (def && def.kind === 'enum') return key + ': ' + val + '\n';
+    // text or custom: quote; Obsidian reads a quoted [[link]] as a link too
+    return key + ': ' + q(val) + '\n';
+  }
   function buildMarkdown(n){
     const d = DESTS[n.dest];
-    const tags = (n.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+    const props = n.props || {};
+
+    // Append destinations are single files, so emit a snippet to paste in, not a page.
+    if (d.mode === 'append') {
+      const title = n.title || 'Untitled';
+      if (n.dest === 'decision') {
+        const num = props.number ? ('D' + String(props.number).replace(/^D/i,'')) : 'D[next]';
+        return '## ' + num + ': ' + title + '\n' +
+               '**Date:** ' + (n.created||today()) + ' · **Status:** ' + (props.status||'adopted') + '\n\n' +
+               (n.body||'') + '\n';
+      }
+      return '## ' + title + '\n\n' + (n.body||'') + '\n';
+    }
+
     let fm = '---\n';
-    fm += 'title: "' + (n.title||'').replace(/"/g,'\\"') + '"\n';
+    fm += 'title: ' + q(n.title||'') + '\n';
     fm += 'type: ' + n.dest + '\n';
-    if (n.dest === 'concept') fm += 'form: ' + (n.form||'reference') + '\n';
-    if (d.wiki){
+    if (d.wiki) {
       fm += 'created: ' + (n.created||today()) + '\n';
       fm += 'updated: ' + today() + '\n';
       fm += 'author: adriaan\n';
-      fm += 'sensitivity: ' + (n.sensitivity||d.layer) + '\n';
-      fm += 'sources:' + (n.source ? '\n  - "' + n.source.replace(/"/g,'\\"') + '"\n' : ' []\n');
+      fm += 'sensitivity: ' + layerFor(n.dest, props) + '\n';
     } else {
       fm += 'date: ' + (n.created||today()) + '\n';
-      fm += 'project: "' + (n.project||'') + '"\n';
-      fm += 'related: []\n';
-      fm += 'subject: "' + (n.subject||'') + '"\n';
-      if (d.fields.includes('source')) fm += 'source: "' + (n.source||'') + '"\n';
-      fm += 'sensitivity: ' + (n.sensitivity||d.layer) + '\n';
+      fm += 'sensitivity: ' + layerFor(n.dest, props) + '\n';
     }
-    fm += 'tags: ' + yamlList(tags) + '\n';
+    // standard props first (in destination order), then any custom
+    d.props.forEach(k => { if (props[k]) fm += emitProp(k, props[k]); });
+    Object.keys(props).forEach(k => { if (!d.props.includes(k) && props[k]) fm += emitProp(k, props[k]); });
     fm += '---\n\n# ' + (n.title||'Untitled') + '\n\n' + (n.body||'') + '\n';
     return fm;
   }
@@ -233,71 +350,76 @@
     setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
   }
 
-  // ---------- notes UI ----------
+  // ---------- notes ----------
   function refreshDestInfo(){
-    const d = DESTS[$('dest').value];
-    $('destInfo').innerHTML = '<span class="layerchip '+d.layer+'">'+d.layer+'</span> <span style="color:var(--dim); font-size:12px;">lands in '+d.folder+'</span>' +
-      (d.layer==='shareable' ? '<div class="warnline">Shareable: make sure it names no client or site before it leaves the local layer.</div>' : '');
-    ['form','subject','source','project'].forEach(f => {
-      const wrap = $('f-'+f); if(!wrap) return;
-      wrap.classList.toggle('hide', !d.fields.includes(f));
+    const dest = $('dest').value, d = DESTS[dest];
+    const layer = layerFor(dest, readProps());
+    const where = d.mode === 'append'
+      ? 'paste into ' + d.file
+      : 'lands in ' + d.folder;
+    $('destInfo').innerHTML = '<span class="layerchip '+layer+'">'+layer+'</span> <span style="color:var(--dim); font-size:12px;">'+where+'</span>' +
+      (d.mode === 'append' ? '<div class="warnline">This is a single file, so Export gives you a snippet to paste in, not a new page.</div>' : '') +
+      (layer==='shareable' ? '<div class="warnline">Shareable: check it names no client or site before it leaves the local layer.</div>' : '');
+    $('f-training').classList.toggle('hide', d.wiki || d.mode === 'append');
+  }
+  function onDestChange(){
+    // Carry over what still applies: the new type's own properties, plus any
+    // custom ones the user added. Drop properties that belonged to the old type.
+    const cur = readProps();
+    const dest = $('dest').value, d = DESTS[dest];
+    const kept = {};
+    Object.keys(cur).forEach(k => {
+      if (d.props.includes(k)) kept[k] = cur[k];      // still relevant
+      else if (!PROP_DEFS[k]) kept[k] = cur[k];       // the user's own custom property
     });
-    $('f-training').classList.toggle('hide', d.wiki); // link-to-training only for working notes
+    if (d.seedTags && !kept.tags) kept.tags = d.seedTags;
+    renderProps(dest, kept);
+    refreshDestInfo();
   }
-  function readNoteForm(){
-    return {
-      dest: $('dest').value, title: $('title').value.trim(), form: $('form').value,
-      subject: $('subject').value.trim(), source: $('source').value.trim(),
-      project: $('project').value.trim(), trainingId: $('trainingLink').value,
-      tags: $('tags').value.trim(), body: $('body').value,
-      sensitivity: DESTS[$('dest').value].layer,
-    };
-  }
-  function clearNoteForm(){ ['title','subject','source','project','tags','body'].forEach(id=>$(id).value=''); $('editId').value=''; $('saveNote').textContent='Save note'; }
+  function clearNoteForm(){ $('title').value=''; $('body').value=''; $('editId').value=''; $('saveNote').textContent='Save note'; renderProps($('dest').value, {}); }
   function saveNote(){
-    const f = readNoteForm();
-    if(!f.title){ alert('Give the note a title.'); return; }
+    const dest = $('dest').value, title = $('title').value.trim();
+    if(!title){ alert('Give the note a title.'); return; }
+    const props = readProps();
+    const rec = { dest, title, props, trainingId: $('trainingLink').value, body: $('body').value, sensitivity: layerFor(dest, props) };
     const editId = $('editId').value;
-    if(editId){
-      const n = state.notes.find(x=>x.id===editId); Object.assign(n, f, { updated: today() });
-    } else {
-      state.notes.unshift(Object.assign({ id: uid(), created: today(), updated: today() }, f));
-    }
+    if(editId){ const n=state.notes.find(x=>x.id===editId); Object.assign(n, rec, { updated: today() }); }
+    else state.notes.unshift(Object.assign({ id: uid(), created: today(), updated: today() }, rec));
     save(); renderNotes(); clearNoteForm();
   }
   function editNote(id){
     const n = state.notes.find(x=>x.id===id); if(!n) return;
-    $('dest').value=n.dest; refreshDestInfo();
-    $('title').value=n.title||''; $('form').value=n.form||'reference';
-    $('subject').value=n.subject||''; $('source').value=n.source||''; $('project').value=n.project||'';
-    $('trainingLink').value=n.trainingId||''; $('tags').value=n.tags||''; $('body').value=n.body||'';
+    $('dest').value=n.dest; refreshDestInfo(); renderProps(n.dest, n.props||{});
+    $('title').value=n.title||''; $('trainingLink').value=n.trainingId||''; $('body').value=n.body||'';
     $('editId').value=id; $('saveNote').textContent='Update note';
     window.scrollTo({top:0,behavior:'smooth'});
   }
   function delNote(id){ if(!confirm('Delete this note?')) return; state.notes=state.notes.filter(x=>x.id!==id); save(); renderNotes(); }
   function renderNotes(){
-    const q = $('noteFilter').value.toLowerCase();
+    const query = $('noteFilter').value.toLowerCase();
     const list = $('noteList'); list.innerHTML='';
-    const notes = state.notes.filter(n => !q || (n.title+' '+(n.subject||'')+' '+(n.tags||'')).toLowerCase().includes(q));
+    const notes = state.notes.filter(n => !query || (n.title+' '+Object.values(n.props||{}).join(' ')).toLowerCase().includes(query));
     if(!notes.length){ list.innerHTML='<div class="empty">No notes yet. Write one on the left.</div>'; return; }
     notes.forEach(n=>{
       const d = DESTS[n.dest];
       const el = document.createElement('div'); el.className='item';
+      const subj = (n.props && (n.props.subject||n.props.source)) || '';
+      const lay = layerFor(n.dest, n.props);
       el.innerHTML = '<div class="top"><span class="t">'+escapeHtml(n.title||'Untitled')+'</span><span class="badge">'+d.label+'</span></div>'+
-        '<div class="meta">'+n.created+(n.subject?' · '+escapeHtml(n.subject):'')+' · <span class="layerchip '+d.layer+'">'+d.layer+'</span></div>'+
+        '<div class="meta">'+n.created+(subj?' · '+escapeHtml(subj):'')+' · <span class="layerchip '+lay+'">'+lay+'</span></div>'+
         '<div class="acts"><button class="btn" data-ed="'+n.id+'">Edit</button><button class="btn" data-ex="'+n.id+'">Export .md</button><button class="btn" data-del="'+n.id+'">Delete</button></div>';
       list.appendChild(el);
     });
     list.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editNote(b.dataset.ed));
-    list.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>{ const n=state.notes.find(x=>x.id===b.dataset.ex); download(slug(n.title)+'.md', buildMarkdown(n)); });
+    list.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>{ const n=state.notes.find(x=>x.id===b.dataset.ex); download(slug(n.title)+(DESTS[n.dest].mode==='append'?'-snippet':'')+'.md', buildMarkdown(n)); });
     list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delNote(b.dataset.del));
   }
   function exportAll(){
     if(!state.notes.length){ alert('No notes to export.'); return; }
-    state.notes.forEach((n,i)=> setTimeout(()=>download(slug(n.title)+'.md', buildMarkdown(n)), i*350));
+    state.notes.forEach((n,i)=> setTimeout(()=>download(slug(n.title)+(DESTS[n.dest].mode==='append'?'-snippet':'')+'.md', buildMarkdown(n)), i*350));
   }
 
-  // ---------- training UI ----------
+  // ---------- training ----------
   function readTraining(){
     return { course:$('tCourse').value.trim(), provider:$('tProvider').value.trim(), date:$('tDate').value,
       hours:parseFloat($('tHours').value)||0, status:$('tStatus').value, category:$('tCategory').value.trim(), note:$('tNote').value.trim() };
@@ -342,7 +464,6 @@
     sel.value=cur;
   }
   function exportCpd(){
-    const yr=new Date().getFullYear();
     const totalH=state.training.reduce((s,t)=>s+(t.hours||0),0);
     let md='---\ntitle: "CPD Log"\ntype: note\ndate: '+today()+'\nsensitivity: local\ntags: [cpd, leadership]\n---\n\n# CPD Log\n\nTotal recorded: '+(Math.round(totalH*10)/10)+' hours.\n\n| Date | Course | Provider | Hours | Category | Status |\n|------|--------|----------|-------|----------|--------|\n';
     state.training.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(t=>{
@@ -351,18 +472,19 @@
     download('cpd-log.md', md);
   }
 
-  function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
   // ---------- boot ----------
   $('taglist').innerHTML = CONTROLLED_TAGS.map(t=>'<option value="'+t+'">').join('');
-  $('foot').textContent = 'Notes save to your account and sync across devices. Export writes an Obsidian-ready .md with the right frontmatter for its destination; drop it in the matching folder. Working notes stay local; only Plannetjies and Concepts are shareable, and only after you have checked them for client detail.';
+  $('foot').textContent = 'Notes save to your account and sync across devices. The Properties block becomes the frontmatter: fill the standard fields or add your own with + Add property. Export writes an Obsidian-ready .md that drops into the destination folder, links and all. Working notes stay local; Plannetjies and Concepts are shareable, and only after you have checked them for client detail.';
 
   document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
     t.classList.add('active'); $('view-'+t.dataset.view).classList.add('active');
   });
-  $('dest').addEventListener('change', refreshDestInfo);
+  $('dest').addEventListener('change', onDestChange);
+  $('addProp').addEventListener('click', () => $('propList').appendChild(propRow('', '', true)));
+  // source-status can flip a Standard to local, so keep the layer chip live
+  $('propList').addEventListener('change', refreshDestInfo);
   $('saveNote').addEventListener('click', saveNote);
   $('noteFilter').addEventListener('input', renderNotes);
   $('exportAll').addEventListener('click', exportAll);
@@ -382,7 +504,7 @@
       if(data && data.data){ state = Object.assign({ notes:[], training:[] }, data.data); }
       setStatus('saved','good');
     } catch(e){ setStatus('offline - not loaded','bad'); }
-    refreshDestInfo(); renderNotes(); renderTraining(); populateTrainingLink();
+    refreshDestInfo(); renderProps($('dest').value, {}); renderNotes(); renderTraining(); populateTrainingLink();
   })();
 })();
 </script>
