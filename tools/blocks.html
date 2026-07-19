@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Blocks · Adriaan Bosch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0e1117; --card:#181c24; --line:#2a2e36; --text:#f0ece4; --dim:#9a948a;
+          --accent:#d98e4a; --good:#4ecb8d; --warn:#e6c05a; --bad:#e66a5a; }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); margin:0; padding:24px;
+    font:15px/1.5 'Inter',-apple-system,'Segoe UI',Roboto,sans-serif; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .acctbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:16px; font-size:12.5px; color:var(--dim); }
+  .acctbar .who { color:var(--text); } .acctbar .spacer { flex:1; }
+  .syncstatus { font-size:11.5px; } .syncstatus.good { color:var(--good); } .syncstatus.bad { color:var(--bad); }
+  .acctbar button, .btn { background:#22262e; border:1px solid var(--line); color:var(--text); border-radius:8px; padding:6px 12px; font:12px inherit; cursor:pointer; }
+  .acctbar button:hover, .btn:hover { border-color:var(--accent); color:var(--accent); }
+  h1 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:27px; margin:0 0 16px; letter-spacing:-0.01em; }
+  .tabs { display:flex; gap:8px; margin-bottom:20px; }
+  .tab { background:none; border:1px solid var(--line); color:var(--dim); border-radius:8px; padding:8px 16px; font:600 12px 'Inter'; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; }
+  .tab.active { color:var(--text); border-color:var(--accent); }
+  .view { display:none; } .view.active { display:block; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; }
+  @media (max-width:980px){ .grid { grid-template-columns:1fr; } }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
+  .panel h2 { font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); margin:14px 0 6px; }
+  input, select, textarea { width:100%; padding:10px 12px; font:15px 'Inter',sans-serif; background:#0f131a; color:var(--text); border:1px solid var(--line); border-radius:8px; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent); }
+  textarea { min-height:260px; resize:vertical; font-family:ui-monospace,Menlo,monospace; font-size:13px; line-height:1.55; }
+  .row { display:flex; gap:12px; } .row > div { flex:1; }
+  button.primary { margin-top:16px; width:100%; padding:11px; cursor:pointer; font:600 12.5px 'Inter'; text-transform:uppercase; letter-spacing:.1em; background:var(--accent); color:#16110a; border:none; border-radius:8px; }
+  button.primary:hover { filter:brightness(1.06); }
+  .item { border:1px solid var(--line); border-radius:9px; padding:11px 13px; margin-bottom:9px; background:#1b202a; }
+  .item .top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .item .t { font-weight:500; font-size:14.5px; }
+  .item .meta { font-size:11.5px; color:var(--dim); margin-top:3px; }
+  .item .acts { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
+  .item .acts button { font-size:11.5px; padding:4px 10px; }
+  .badge { font-size:10.5px; padding:2px 8px; border-radius:5px; background:#22262e; color:var(--dim); text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+  .badge.draft { background:rgba(230,192,90,.15); color:var(--warn); }
+  .empty { color:var(--dim); font-size:13px; padding:14px 0; }
+  .pick { display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-bottom:7px; background:#1b202a; }
+  .pick input[type=checkbox] { width:auto; flex:0 0 auto; }
+  .pick .nm { flex:1; font-size:13.5px; }
+  .pick .ord { display:flex; gap:4px; }
+  .pick .ord button { padding:2px 8px; font-size:12px; }
+  .ph { display:flex; align-items:center; gap:10px; margin-top:8px; }
+  .ph .k { flex:0 0 150px; font-family:ui-monospace,Menlo,monospace; font-size:12.5px; color:var(--accent); }
+  .ph input { flex:1; padding:8px 10px; }
+  .note { margin-top:14px; padding:11px 13px; border-left:2px solid var(--warn); background:rgba(230,192,90,.07); font-size:12.5px; color:var(--warn); border-radius:0 6px 6px 0; }
+  .foot { color:var(--dim); font-size:11.5px; margin-top:22px; max-width:95ch; }
+  .hint { font-size:11px; color:var(--dim); margin-top:5px; }
+</style>
+</head>
+<body>
+
+<div class="acctbar">
+  <span class="who" id="whoami">&nbsp;</span>
+  <span class="syncstatus" id="syncStatus">connecting...</span>
+  <span class="spacer"></span>
+  <a href="./">Your tools</a>
+  <button id="signout">Sign out</button>
+</div>
+
+<h1>Blocks</h1>
+
+<div class="tabs">
+  <button class="tab active" data-view="lib">Block library</button>
+  <button class="tab" data-view="build">Build a report</button>
+</div>
+
+<!-- LIBRARY -->
+<div class="view active" id="view-lib">
+  <div class="grid">
+    <div class="panel">
+      <h2><span id="blockFormTitle">New block</span><button class="btn" id="newBlock">New</button></h2>
+      <div class="row">
+        <div><label for="bDoc">Document type</label><input id="bDoc" list="doclist" placeholder="OR2"><datalist id="doclist"><option>OR2</option><option>S2</option><option>S3</option><option>SRA</option><option>STR</option><option>DN</option><option>EXP</option></datalist></div>
+        <div><label for="bSection">Section no.</label><input id="bSection" placeholder="1"></div>
+      </div>
+      <div class="row">
+        <div><label for="bSubject">Subject</label><input id="bSubject" list="subjlist" placeholder="Generic or HVM"><datalist id="subjlist"><option>Generic</option><option>HVM</option><option>VSS</option><option>EACS</option><option>IDS</option><option>Blast</option><option>Barriers</option><option>Lighting</option><option>Integration</option></datalist></div>
+        <div><label for="bStatus">Status</label><select id="bStatus"><option>ready</option><option>draft</option></select></div>
+      </div>
+      <label for="bTitle">Block title</label>
+      <input id="bTitle" placeholder="Operational Intent">
+      <label for="bBody">Content</label>
+      <textarea id="bBody" placeholder="## Heading&#10;Prose paragraph.&#10;- bullet&#10;| Col | Col |&#10;|---|---|&#10;| a | b |&#10;&#10;Use {{placeholder}} for anything filled per job."></textarea>
+      <div class="hint">Markdown subset: # ## ### headings, - bullets, | tables |, **bold**. Placeholders look like {{threat_vehicle}}.</div>
+      <button class="primary" id="saveBlock">Save block</button>
+      <input type="hidden" id="bEditId" value="">
+    </div>
+
+    <div class="panel">
+      <h2>Library <span id="blockCount" class="badge"></span></h2>
+      <div class="row">
+        <div><input id="libFilter" placeholder="Filter by title, type or subject"></div>
+      </div>
+      <div id="blockList" style="margin-top:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUILD -->
+<div class="view" id="view-build">
+  <div class="grid">
+    <div class="panel">
+      <h2>Document</h2>
+      <div class="row">
+        <div><label for="dProject">Project code</label><input id="dProject" placeholder="SE"></div>
+        <div><label for="dDocType">DocType</label><input id="dDocType" list="doclist" placeholder="OR2"></div>
+      </div>
+      <div class="row">
+        <div><label for="dSubject">Subject</label><input id="dSubject" placeholder="HVM"></div>
+        <div><label for="dVersion">Version</label><input id="dVersion" type="number" min="1" value="1"></div>
+      </div>
+      <div class="row">
+        <div><label for="dYear">Year</label><input id="dYear" type="number" value="2026"></div>
+        <div><label for="dAuthor">Author</label><input id="dAuthor" placeholder="Adriaan Bosch"></div>
+      </div>
+      <label for="dTitle">Document title</label>
+      <input id="dTitle" placeholder="Operational Requirement Level 2: Hostile Vehicle Mitigation">
+
+      <label style="margin-bottom:2px;">Placeholders</label>
+      <div class="hint">Collected from the blocks you select. Fill once, applied everywhere.</div>
+      <div id="phList"></div>
+
+      <button class="primary" id="exportDocx">Export .docx</button>
+      <div id="buildMsg" class="hint"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Blocks in this report <button class="btn" id="selectAllDoc">Select all of type</button></h2>
+      <div class="hint">Tick to include. Use the arrows to order. Order is the order they appear in the document.</div>
+      <div id="pickList" style="margin-top:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<p class="foot" id="foot"></p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="config.js"></script>
+<script>
+(function(){
+  const C = window.TOOLS_CONFIG;
+  const TOOL = 'blocks';
+  const sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  const today = () => new Date().toISOString().slice(0,10);
+  function esc(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  let state = { blocks: [], build: { selected: [], values: {}, meta: {} } };
+
+  // ---------- seed library (first run only) ----------
+  function seedBlocks(){
+    const mk = (docType, subject, section, title, status, body) => ({ id: uid(), docType, subject, section, title, status, body, updated: today() });
+    return [
+      // --- OR2 skeleton, from the vault's own or2-system-requirement-template ---
+      mk('OR2','Generic','0','Document control','ready',
+`- System type: {{system}}
+- Project: {{project}}
+- Document ref: {{doc_ref}}
+- Revision: {{revision}}
+- Date: {{date}}
+- Author: {{author}}`),
+      mk('OR2','Generic','1','Operational Intent','ready',
+`State plainly what this system supports and what it does not replace.
+
+The {{system}} shall support the security operation by {{primary_function}}. It shall not replace {{other_layers}}. Its role is to {{contribution}}.
+
+This system exists because of a specific decision in the security strategy about where emphasis sits.`),
+      mk('OR2','Generic','2','Scope and Area of Concern','ready',
+`Define where this system applies, and the interfaces it must work across.
+
+| Area / interface | System intent | Associated response |
+|---|---|---|
+| {{area_1}} | | |
+| {{area_2}} | | |
+
+Name the spaces, routes and interfaces where this system must perform. Generic coverage statements fail operationally.`),
+      mk('OR2','Generic','3','System Functions','ready',
+`| Function | Operational meaning |
+|---|---|
+| **Detect** | {{detect}} |
+| **Alert** | {{alert}} |
+| **Verify** | {{verify}} |
+| **Control** | {{control}} |
+| **Record** | {{record}} |
+
+These functions carry into the design brief and into acceptance testing.`),
+      mk('OR2','Generic','4','Operating Concept','ready',
+`How the system is operated day to day, who acts on it, and what happens when it reports something.
+
+Normal operation: {{normal_operation}}
+
+On activation: {{on_activation}}
+
+Degraded or failed state: {{degraded_state}}`),
+      mk('OR2','Generic','5','Lockout and Local Control','ready',
+`Define who may isolate, override or locally control the system, under what authority, and how that is recorded.
+
+Isolation authority: {{isolation_authority}}
+
+Every isolation, override and reinstatement is logged and auditable.`),
+      mk('OR2','Generic','6','Integration Requirements','ready',
+`State what this system must exchange with other systems, and what it must not depend on.
+
+| Interfacing system | Required behaviour |
+|---|---|
+| {{interface_1}} | |
+| {{interface_2}} | |
+
+Integration is a performance requirement, not a product choice. The requirement states what must be achieved; the systems integrator determines how.`),
+      mk('OR2','Generic','7','Operational Requirements Table','ready',
+`| Ref | Operational requirement | Priority |
+|---|---|---|
+| {{sys_code}}-OR2-001 | | Must |
+| {{sys_code}}-OR2-002 | | Must |
+| {{sys_code}}-OR2-003 | | Should |
+
+**Must** is non-negotiable for the system to fulfil its operational role.
+**Should** is strongly recommended; deviation requires documented rationale.
+
+Every requirement traces to a registered risk with a named owner. Removing or downgrading a requirement is a formal risk-acceptance decision by that owner, recorded against the register entry, never a quiet cut.`),
+      mk('OR2','Generic','8','Compliance and Governance','ready',
+`Standards and governance this system is held to: {{standards}}
+
+Standards are guardrails, not content. This document states what must be achieved in this context; it does not reproduce the standard.`),
+      mk('OR2','Generic','9','Success Criteria and Acceptance Testing','ready',
+`The system is accepted when it demonstrably achieves the following, witnessed and recorded.
+
+| Ref | Acceptance criterion | Method |
+|---|---|---|
+| {{sys_code}}-AT-001 | | Witness test |
+| {{sys_code}}-AT-002 | | Document review |
+
+Acceptance is against the operational requirement, not the product datasheet.`),
+      mk('OR2','Generic','10','Report Summary Statement','ready',
+`{{summary_statement}}
+
+Security owns this advice: the analysis and the requirements that follow. It does not own the risk. The risk owner weighs cost and accepts what remains.`),
+
+      // --- HVM specific. DRAFTED FROM THE WIKI, for Adriaan to correct. ---
+      mk('OR2','HVM','1','HVM Operational Intent','draft',
+`Hostile vehicle mitigation at {{site}} shall reduce the risk of a vehicle being used as a weapon or as a means of delivering an explosive payload to {{asset}}.
+
+The measures shall stop or deflect the identified threat vehicle at the protected line, maintain stand-off of {{standoff}} where achievable, and do so without eroding pedestrian movement, accessibility or the quality of the public realm.
+
+HVM does not replace access control, surveillance, or response. Its role is to remove the vehicle as an attack option at the point where consequence is highest.`),
+      mk('OR2','HVM','2','HVM Threat and Area of Concern','draft',
+`Vehicle-borne threats considered for {{site}}:
+
+- **Vehicle as a weapon** against people in {{crowded_area}}
+- **VBIED**, where stand-off distance is the controlling factor
+- **Layered attack**, a vehicle attack with a follow-on method
+
+| Approach / interface | Threat | Protected line |
+|---|---|---|
+| {{approach_1}} | | |
+| {{approach_2}} | | |
+
+Protection is layered across the District, the Site and the Threshold rather than delivered on a single line.`),
+      mk('OR2','HVM','3','HVM Performance Requirement','draft',
+`The vehicle security barriers at the protected line shall resist the following, established by a Vehicle Dynamics Assessment:
+
+| Parameter | Requirement |
+|---|---|
+| Threat vehicle | {{threat_vehicle}} |
+| Impact speed (VDA derived) | {{vda_speed}} |
+| Impact angle | {{impact_angle}} |
+| Maximum permitted penetration | {{max_penetration}} |
+| Stand-off to be maintained | {{standoff}} |
+
+The impact speed shall be taken from a Vehicle Dynamics Assessment carried out by a suitably qualified and experienced person, using vehicle handling data from physical trials and reputable threat sources. It shall not be assumed or estimated.
+
+Reducing achievable speed by layout reduces the rating required. Road geometry and speed-reduction features are to be treated as security measures and considered before barrier strength is increased.`),
+      mk('OR2','HVM','4','HVM Rating and Standards Basis','draft',
+`Any barrier offered shall hold a valid impact performance rating from a recognised test standard that meets or exceeds the performance requirement above.
+
+Recognised standards: ISO 22343-1 (current), IWA 14-1, PAS 68. Products tested to superseded standards retain a valid rating and shall not be excluded on that basis alone.
+
+Ratings from different standards shall not be treated as equivalent or converted between standards. Penetration is measured from the front face under ISO 22343 and IWA 14-1, and from the rear face under PAS 68, so the figures are not directly comparable.
+
+A rating shall be evidenced by a test report from an accredited test house, or a properly substantiated design rating. Claims that a product is "designed to" or "engineered to" a standard are not acceptable evidence.`),
+      mk('OR2','HVM','5','HVM Vehicle Access Control Points','draft',
+`Where legitimate vehicles must cross the protected line, the gap shall be managed through a Vehicle Access Control Point.
+
+| Requirement | Statement |
+|---|---|
+| Layout | {{vacp_layout}} |
+| Final denial | A final denial barrier shall stop a vehicle that defeats the control |
+| Throughput | {{throughput}} |
+| Safety | Safe operation around pedestrians and legitimate traffic |
+
+The VACP shall balance security against traffic throughput and safety. Interlocking, signalling and detection arrangements are performance requirements; the layout and product selection sit with the barrier and civils teams.`),
+      mk('OR2','HVM','6','HVM Foundations and Ground Conditions','draft',
+`A barrier rating holds only where the installed foundation and ground conditions match or exceed the tested condition.
+
+Site ground conditions: {{ground_conditions}}
+
+Where the site condition differs from the tested foundation, or where services constrain foundation depth, the barrier shall be subject to a foundation appraisal and any modification signed off by a suitably qualified security engineer.
+
+Buried services, drainage and future maintenance access shall be coordinated with the civils and MEP teams before the barrier line is fixed.`),
+      mk('OR2','HVM','7','HVM Requirements Table','draft',
+`| Ref | Operational requirement | Priority |
+|---|---|---|
+| HVM-OR2-001 | The protected line shall resist {{threat_vehicle}} at {{vda_speed}} at {{impact_angle}} | Must |
+| HVM-OR2-002 | Penetration beyond the protected line shall not exceed {{max_penetration}} | Must |
+| HVM-OR2-003 | Stand-off of {{standoff}} shall be maintained to {{asset}} | Must |
+| HVM-OR2-004 | Impact speed shall be established by a Vehicle Dynamics Assessment | Must |
+| HVM-OR2-005 | Barriers shall hold a valid rating from a recognised impact test standard | Must |
+| HVM-OR2-006 | Foundations shall match or exceed the tested condition | Must |
+| HVM-OR2-007 | Measures should reduce achievable speed by layout before increasing rating | Should |
+
+Every requirement traces to a registered risk with a named owner.`),
+      mk('OR2','HVM','8','HVM Coordination and Interfaces','draft',
+`HVM runs through disciplines it does not own. This section states what each must deliver against.
+
+| Discipline | What the requirement asks of them |
+|---|---|
+| Civils and structures | Foundations to match the tested condition; buried services coordination |
+| Landscape and public realm | Measures integrated so they do not erode movement, comfort or the character of the place |
+| Traffic and highways | Approach geometry and speed reduction, treated as a security measure |
+| Operations | VACP operation, response to a defeated control, maintenance access |
+| Fire and life safety | Emergency vehicle access and egress not compromised by the barrier line |
+
+Security states the requirement and holds it to account. The relevant discipline determines how it is delivered.`),
+    ];
+  }
+
+  // ---------- persistence ----------
+  let saveTimer=null;
+  function setStatus(t,c){ const e=$('syncStatus'); if(e){ e.textContent=t; e.className='syncstatus '+(c||''); } }
+  function save(){
+    setStatus('saving...');
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(async ()=>{
+      try{
+        const { data:{ session } } = await sb.auth.getSession();
+        if(!session){ location.replace('./'); return; }
+        const { error } = await sb.from('app_data').upsert({ user_id:session.user.id, tool:TOOL, data:state }, { onConflict:'user_id,tool' });
+        if(error) throw error;
+        setStatus('saved','good');
+      }catch(e){ setStatus('not saved - will retry','bad'); clearTimeout(saveTimer); saveTimer=setTimeout(save,5000); }
+    },600);
+  }
+
+  // ---------- library ----------
+  function clearBlockForm(){
+    ['bTitle','bBody','bSection'].forEach(i=>$(i).value='');
+    $('bEditId').value=''; $('blockFormTitle').textContent='New block'; $('bStatus').value='ready';
+  }
+  function saveBlock(){
+    const rec = { docType:$('bDoc').value.trim()||'OR2', subject:$('bSubject').value.trim()||'Generic',
+      section:$('bSection').value.trim(), title:$('bTitle').value.trim(), status:$('bStatus').value,
+      body:$('bBody').value, updated:today() };
+    if(!rec.title){ alert('Give the block a title.'); return; }
+    const id=$('bEditId').value;
+    if(id){ const b=state.blocks.find(x=>x.id===id); Object.assign(b,rec); }
+    else state.blocks.push(Object.assign({id:uid()},rec));
+    save(); renderLibrary(); renderPick(); clearBlockForm();
+  }
+  function editBlock(id){
+    const b=state.blocks.find(x=>x.id===id); if(!b) return;
+    $('bDoc').value=b.docType; $('bSubject').value=b.subject; $('bSection').value=b.section||'';
+    $('bTitle').value=b.title; $('bStatus').value=b.status||'ready'; $('bBody').value=b.body||'';
+    $('bEditId').value=id; $('blockFormTitle').textContent='Edit block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function delBlock(id){ if(!confirm('Delete this block?'))return; state.blocks=state.blocks.filter(x=>x.id!==id);
+    state.build.selected=state.build.selected.filter(x=>x!==id); save(); renderLibrary(); renderPick(); }
+  function dupBlock(id){ const b=state.blocks.find(x=>x.id===id); if(!b)return;
+    state.blocks.push(Object.assign({},b,{id:uid(),title:b.title+' (copy)',updated:today()})); save(); renderLibrary(); renderPick(); }
+  function sortBlocks(a,b){
+    if(a.docType!==b.docType) return a.docType.localeCompare(b.docType);
+    if(a.subject!==b.subject) return a.subject.localeCompare(b.subject);
+    return (parseFloat(a.section)||99)-(parseFloat(b.section)||99);
+  }
+  function renderLibrary(){
+    const q=$('libFilter').value.toLowerCase();
+    const list=$('blockList'); list.innerHTML='';
+    $('blockCount').textContent = state.blocks.length + ' blocks';
+    const rows=state.blocks.slice().sort(sortBlocks)
+      .filter(b=>!q || (b.title+' '+b.docType+' '+b.subject).toLowerCase().includes(q));
+    if(!rows.length){ list.innerHTML='<div class="empty">No blocks match.</div>'; return; }
+    rows.forEach(b=>{
+      const el=document.createElement('div'); el.className='item';
+      el.innerHTML='<div class="top"><span class="t">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+'</span>'+
+        '<span class="badge'+(b.status==='draft'?' draft':'')+'">'+esc(b.status||'ready')+'</span></div>'+
+        '<div class="meta">'+esc(b.docType)+' · '+esc(b.subject)+' · '+countPh(b.body).length+' placeholders</div>'+
+        '<div class="acts"><button class="btn" data-ed="'+b.id+'">Edit</button><button class="btn" data-dup="'+b.id+'">Duplicate</button><button class="btn" data-del="'+b.id+'">Delete</button></div>';
+      list.appendChild(el);
+    });
+    list.querySelectorAll('[data-ed]').forEach(x=>x.onclick=()=>editBlock(x.dataset.ed));
+    list.querySelectorAll('[data-dup]').forEach(x=>x.onclick=()=>dupBlock(x.dataset.dup));
+    list.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>delBlock(x.dataset.del));
+  }
+
+  // ---------- build ----------
+  function countPh(body){
+    const set=new Set(); (String(body||'').match(/\{\{([a-z0-9_]+)\}\}/gi)||[]).forEach(m=>set.add(m.slice(2,-2)));
+    return [...set];
+  }
+  function selectedBlocks(){ return state.build.selected.map(id=>state.blocks.find(b=>b.id===id)).filter(Boolean); }
+  function renderPick(){
+    const list=$('pickList'); list.innerHTML='';
+    const sel=state.build.selected;
+    const chosen=selectedBlocks();
+    const rest=state.blocks.slice().sort(sortBlocks).filter(b=>!sel.includes(b.id));
+    if(!state.blocks.length){ list.innerHTML='<div class="empty">No blocks yet.</div>'; return; }
+    chosen.forEach((b,i)=>{
+      const el=document.createElement('div'); el.className='pick';
+      el.innerHTML='<input type="checkbox" checked data-tog="'+b.id+'"><span class="nm">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+' <span class="badge'+(b.status==='draft'?' draft':'')+'">'+esc(b.subject)+'</span></span>'+
+        '<span class="ord"><button class="btn" data-up="'+b.id+'"'+(i===0?' disabled':'')+'>up</button><button class="btn" data-down="'+b.id+'"'+(i===chosen.length-1?' disabled':'')+'>down</button></span>';
+      list.appendChild(el);
+    });
+    if(rest.length){
+      const h=document.createElement('div'); h.className='hint'; h.style.marginTop='14px'; h.textContent='Not included:'; list.appendChild(h);
+      rest.forEach(b=>{
+        const el=document.createElement('div'); el.className='pick';
+        el.innerHTML='<input type="checkbox" data-tog="'+b.id+'"><span class="nm">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+' <span class="badge'+(b.status==='draft'?' draft':'')+'">'+esc(b.subject)+'</span></span>';
+        list.appendChild(el);
+      });
+    }
+    list.querySelectorAll('[data-tog]').forEach(x=>x.onchange=()=>{
+      const id=x.dataset.tog;
+      if(x.checked){ if(!state.build.selected.includes(id)) state.build.selected.push(id); }
+      else state.build.selected=state.build.selected.filter(i=>i!==id);
+      save(); renderPick(); renderPlaceholders();
+    });
+    list.querySelectorAll('[data-up]').forEach(x=>x.onclick=()=>{ const i=state.build.selected.indexOf(x.dataset.up);
+      if(i>0){ const s=state.build.selected; [s[i-1],s[i]]=[s[i],s[i-1]]; save(); renderPick(); } });
+    list.querySelectorAll('[data-down]').forEach(x=>x.onclick=()=>{ const s=state.build.selected, i=s.indexOf(x.dataset.down);
+      if(i>-1&&i<s.length-1){ [s[i+1],s[i]]=[s[i],s[i+1]]; save(); renderPick(); } });
+  }
+  function renderPlaceholders(){
+    const keys=new Set();
+    selectedBlocks().forEach(b=>countPh(b.body).forEach(k=>keys.add(k)));
+    const box=$('phList'); box.innerHTML='';
+    if(!keys.size){ box.innerHTML='<div class="empty">No placeholders in the selected blocks.</div>'; return; }
+    [...keys].sort().forEach(k=>{
+      const row=document.createElement('div'); row.className='ph';
+      row.innerHTML='<span class="k">{{'+esc(k)+'}}</span><input data-ph="'+esc(k)+'" value="'+esc(state.build.values[k]||'')+'">';
+      box.appendChild(row);
+    });
+    box.querySelectorAll('[data-ph]').forEach(x=>x.onchange=()=>{ state.build.values[x.dataset.ph]=x.value; save(); });
+  }
+  function fill(text){
+    return String(text||'').replace(/\{\{([a-z0-9_]+)\}\}/gi,(m,k)=> state.build.values[k] || ('['+k+']'));
+  }
+
+  // ---------- markdown subset -> docx ----------
+  function runs(text, D){
+    const out=[]; const parts=String(text).split(/(\*\*[^*]+\*\*)/g);
+    parts.forEach(p=>{ if(!p) return;
+      if(/^\*\*[^*]+\*\*$/.test(p)) out.push(new D.TextRun({ text:p.slice(2,-2), bold:true }));
+      else out.push(new D.TextRun(p)); });
+    return out.length?out:[new D.TextRun('')];
+  }
+  function mdToDocx(md, D){
+    const kids=[]; const lines=String(md||'').split('\n');
+    let i=0;
+    while(i<lines.length){
+      const ln=lines[i];
+      if(/^\s*$/.test(ln)){ i++; continue; }
+      // table
+      if(/^\s*\|/.test(ln)){
+        const tbl=[]; while(i<lines.length && /^\s*\|/.test(lines[i])){ tbl.push(lines[i]); i++; }
+        const rows=tbl.map(r=>r.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim()))
+                      .filter(cells=>!cells.every(c=>/^:?-{2,}:?$/.test(c)));
+        if(rows.length){
+          const width={ size:100, type:D.WidthType.PERCENTAGE };
+          kids.push(new D.Table({ width, rows: rows.map((cells,ri)=> new D.TableRow({ children: cells.map(c=>
+            new D.TableCell({ children:[ new D.Paragraph({ children: ri===0 ? [new D.TextRun({text:c.replace(/\*\*/g,''),bold:true})] : runs(c,D) }) ] })
+          )})) }));
+          kids.push(new D.Paragraph(''));
+        }
+        continue;
+      }
+      let m;
+      if((m=ln.match(/^###\s+(.*)/))) kids.push(new D.Paragraph({ text:m[1], heading:D.HeadingLevel.HEADING_3 }));
+      else if((m=ln.match(/^##\s+(.*)/))) kids.push(new D.Paragraph({ text:m[1], heading:D.HeadingLevel.HEADING_2 }));
+      else if((m=ln.match(/^#\s+(.*)/))) kids.push(new D.Paragraph({ text:m[1], heading:D.HeadingLevel.HEADING_1 }));
+      else if((m=ln.match(/^\s*[-*]\s+(.*)/))) kids.push(new D.Paragraph({ children:runs(m[1],D), bullet:{level:0} }));
+      else kids.push(new D.Paragraph({ children:runs(ln,D) }));
+      i++;
+    }
+    return kids;
+  }
+
+  function filename(){
+    const p=$('dProject').value.trim()||'PROJ', d=$('dDocType').value.trim()||'OR2',
+          s=($('dSubject').value.trim()||'Subject').replace(/\s+/g,''), v=$('dVersion').value||'1', y=$('dYear').value||new Date().getFullYear();
+    return p+'_'+d+'_'+s+'_v'+v+'_'+y+'.docx';
+  }
+  async function exportDocx(){
+    const D=window.docx;
+    if(!D){ $('buildMsg').textContent='The document library did not load. Check the connection and refresh.'; return; }
+    const blocks=selectedBlocks();
+    if(!blocks.length){ $('buildMsg').textContent='Select at least one block first.'; return; }
+    $('buildMsg').textContent='Building...';
+    try{
+      const children=[];
+      children.push(new D.Paragraph({ text: fill($('dTitle').value.trim()||'Operational Requirement'), heading:D.HeadingLevel.TITLE }));
+      const meta=[$('dProject').value.trim(), $('dDocType').value.trim(), 'v'+($('dVersion').value||'1'), $('dYear').value, $('dAuthor').value.trim()].filter(Boolean).join('  ·  ');
+      children.push(new D.Paragraph({ children:[ new D.TextRun({ text:meta, color:'666666' }) ] }));
+      children.push(new D.Paragraph(''));
+      blocks.forEach(b=>{
+        children.push(new D.Paragraph({ text: fill((b.section?b.section+'. ':'')+b.title), heading:D.HeadingLevel.HEADING_1 }));
+        mdToDocx(fill(b.body), D).forEach(k=>children.push(k));
+        children.push(new D.Paragraph(''));
+      });
+      const doc=new D.Document({ styles:{ default:{ document:{ run:{ font:'Calibri', size:22 } } } }, sections:[{ children }] });
+      const blob=await D.Packer.toBlob(doc);
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename();
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+      const drafts=blocks.filter(b=>b.status==='draft').length;
+      $('buildMsg').textContent='Exported '+filename()+' from '+blocks.length+' blocks'+(drafts?'. '+drafts+' were marked draft, so read them before this leaves your desk.':'.');
+    }catch(e){ $('buildMsg').textContent='Could not build the document: '+e.message; }
+  }
+  function saveMeta(){
+    state.build.meta={ project:$('dProject').value, docType:$('dDocType').value, subject:$('dSubject').value,
+      version:$('dVersion').value, year:$('dYear').value, author:$('dAuthor').value, title:$('dTitle').value };
+    save();
+  }
+  function loadMeta(){
+    const m=state.build.meta||{};
+    $('dProject').value=m.project||''; $('dDocType').value=m.docType||'OR2'; $('dSubject').value=m.subject||'';
+    $('dVersion').value=m.version||'1'; $('dYear').value=m.year||new Date().getFullYear();
+    $('dAuthor').value=m.author||''; $('dTitle').value=m.title||'';
+  }
+
+  // ---------- boot ----------
+  $('foot').textContent='Blocks are your reusable components. Placeholders like {{threat_vehicle}} are filled once per report and applied across every block. Export writes a real .docx named to the convention Project_DocType_Subject_vN_Year. HVM blocks are seeded as drafts from the wiki: they are a starting point for your judgement, not a finished requirement.';
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active'); $('view-'+t.dataset.view).classList.add('active');
+    if(t.dataset.view==='build'){ renderPick(); renderPlaceholders(); }
+  });
+  $('saveBlock').addEventListener('click', saveBlock);
+  $('newBlock').addEventListener('click', clearBlockForm);
+  $('libFilter').addEventListener('input', renderLibrary);
+  $('exportDocx').addEventListener('click', exportDocx);
+  ['dProject','dDocType','dSubject','dVersion','dYear','dAuthor','dTitle'].forEach(i=>$(i).addEventListener('change', saveMeta));
+  $('selectAllDoc').addEventListener('click', ()=>{
+    const dt=($('dDocType').value.trim()||'OR2').toLowerCase();
+    state.build.selected = state.blocks.slice().sort(sortBlocks).filter(b=>b.docType.toLowerCase()===dt).map(b=>b.id);
+    save(); renderPick(); renderPlaceholders();
+  });
+
+  sb.auth.onAuthStateChange((_e,s)=>{ if(!s) location.replace('./'); });
+  $('signout').addEventListener('click', async ()=>{ await sb.auth.signOut(); location.replace('./'); });
+
+  (async function boot(){
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.replace('./'); return; }
+    $('whoami').textContent=session.user.email;
+    try{
+      const { data, error } = await sb.from('app_data').select('data').eq('tool',TOOL).maybeSingle();
+      if(error) throw error;
+      if(data && data.data) state=Object.assign({ blocks:[], build:{selected:[],values:{},meta:{}} }, data.data);
+      if(!state.build) state.build={selected:[],values:{},meta:{}};
+      if(!state.blocks || !state.blocks.length){ state.blocks=seedBlocks(); save(); }
+      setStatus('saved','good');
+    }catch(e){ setStatus('offline - not loaded','bad'); if(!state.blocks.length) state.blocks=seedBlocks(); }
+    loadMeta(); renderLibrary(); renderPick(); renderPlaceholders();
+  })();
+})();
+</script>
+
+</body>
+</html>
