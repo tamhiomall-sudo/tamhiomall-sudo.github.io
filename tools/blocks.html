@@ -81,13 +81,14 @@
     <div class="panel">
       <h2><span id="blockFormTitle">New block</span><button class="btn" id="newBlock">New</button></h2>
       <div class="row">
-        <div><label for="bDoc">Document type</label><input id="bDoc" list="doclist" placeholder="OR2"><datalist id="doclist"><option>OR2</option><option>S2</option><option>S3</option><option>SRA</option><option>STR</option><option>DN</option><option>EXP</option></datalist></div>
-        <div><label for="bSection">Section no.</label><input id="bSection" placeholder="1"></div>
+        <div><label for="bCategory">Category</label><input id="bCategory" list="catlist" placeholder="Operational Requirement"><datalist id="catlist"></datalist></div>
+        <div><label for="bElement">Element / system</label><input id="bElement" list="elemlist" placeholder="HVM (leave blank if none)"><datalist id="elemlist"></datalist></div>
       </div>
       <div class="row">
-        <div><label for="bSubject">Subject</label><input id="bSubject" list="subjlist" placeholder="Generic or HVM"><datalist id="subjlist"><option>Generic</option><option>HVM</option><option>VSS</option><option>EACS</option><option>IDS</option><option>Blast</option><option>Barriers</option><option>Lighting</option><option>Integration</option></datalist></div>
+        <div><label for="bSection">Order</label><input id="bSection" placeholder="1"></div>
         <div><label for="bStatus">Status</label><select id="bStatus"><option>ready</option><option>draft</option></select></div>
       </div>
+      <div class="hint">Type a name that is not in the list to create a new category or element. Element is optional: leave it blank where blocks sit directly under the category.</div>
       <label for="bTitle">Block title</label>
       <input id="bTitle" placeholder="Operational Intent">
       <label for="bBody">Content</label>
@@ -136,7 +137,11 @@
     </div>
 
     <div class="panel">
-      <h2>Blocks in this report <button class="btn" id="selectAllDoc">Select all of type</button></h2>
+      <h2>Blocks in this report</h2>
+      <div class="row" style="margin-bottom:10px;">
+        <div><input id="buildCat" list="catlist" placeholder="Filter by category"></div>
+        <div style="flex:0 0 auto;"><button class="btn" id="selectAllDoc">Add all shown</button></div>
+      </div>
       <div class="hint">Tick to include. Use the arrows to order. Order is the order they appear in the document.</div>
       <div id="pickList" style="margin-top:12px;"></div>
     </div>
@@ -158,11 +163,43 @@
   const today = () => new Date().toISOString().slice(0,10);
   function esc(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  let state = { blocks: [], build: { selected: [], values: {}, meta: {} } };
+  // Starting taxonomy. Not exhaustive by design: typing a new name creates one.
+  const SEED_CATEGORIES = ['Generic','Risk Assessment','Strategy','Operational Requirement','Systems Design Integration','Design Guidance'];
+  const SEED_ELEMENTS = ['Generic','HVM','VSS','EACS','IDS','Search and Screening','Public Address','Security Lighting','Physical Barriers','Building Fabric and Facade','Blast','System Integration'];
+
+  let state = { blocks: [], categories: [], elements: [], build: { selected: [], values: {}, meta: {} } };
+
+  // Older blocks carried docType/subject. Bring them onto category/element.
+  const DOCTYPE_TO_CATEGORY = { 'OR2':'Operational Requirement', 'SRA':'Risk Assessment', 'STR':'Strategy',
+    'S2':'Stage Report', 'S3':'Stage Report', 'DN':'Design Note', 'EXP':'Exercise' };
+  function migrate(){
+    (state.blocks||[]).forEach(b=>{
+      if(!b.category){ b.category = DOCTYPE_TO_CATEGORY[b.docType] || b.docType || 'Generic'; }
+      if(b.element === undefined){ b.element = b.subject || ''; }
+      delete b.docType; delete b.subject;
+    });
+  }
+  function allCategories(){
+    const s=new Set(SEED_CATEGORIES);
+    (state.categories||[]).forEach(c=>s.add(c));
+    (state.blocks||[]).forEach(b=>{ if(b.category) s.add(b.category); });
+    return [...s].sort();
+  }
+  function allElements(){
+    const s=new Set(SEED_ELEMENTS);
+    (state.elements||[]).forEach(e=>s.add(e));
+    (state.blocks||[]).forEach(b=>{ if(b.element) s.add(b.element); });
+    return [...s].sort();
+  }
+  function refreshLists(){
+    $('catlist').innerHTML = allCategories().map(c=>'<option value="'+esc(c)+'">').join('');
+    $('elemlist').innerHTML = allElements().map(e=>'<option value="'+esc(e)+'">').join('');
+  }
 
   // ---------- seed library (first run only) ----------
   function seedBlocks(){
-    const mk = (docType, subject, section, title, status, body) => ({ id: uid(), docType, subject, section, title, status, body, updated: today() });
+    const mk = (docType, subject, section, title, status, body) => ({ id: uid(),
+      category: DOCTYPE_TO_CATEGORY[docType] || docType, element: subject, section, title, status, body, updated: today() });
     return [
       // --- OR2 skeleton, from the vault's own or2-system-requirement-template ---
       mk('OR2','Generic','0','Document control','ready',
@@ -360,18 +397,21 @@ Security states the requirement and holds it to account. The relevant discipline
     $('bEditId').value=''; $('blockFormTitle').textContent='New block'; $('bStatus').value='ready';
   }
   function saveBlock(){
-    const rec = { docType:$('bDoc').value.trim()||'OR2', subject:$('bSubject').value.trim()||'Generic',
+    const rec = { category:$('bCategory').value.trim()||'Generic', element:$('bElement').value.trim(),
       section:$('bSection').value.trim(), title:$('bTitle').value.trim(), status:$('bStatus').value,
       body:$('bBody').value, updated:today() };
     if(!rec.title){ alert('Give the block a title.'); return; }
+    // a name typed here that is new becomes part of the taxonomy
+    if(rec.category && !allCategories().includes(rec.category)) (state.categories=state.categories||[]).push(rec.category);
+    if(rec.element && !allElements().includes(rec.element)) (state.elements=state.elements||[]).push(rec.element);
     const id=$('bEditId').value;
     if(id){ const b=state.blocks.find(x=>x.id===id); Object.assign(b,rec); }
     else state.blocks.push(Object.assign({id:uid()},rec));
-    save(); renderLibrary(); renderPick(); clearBlockForm();
+    save(); refreshLists(); renderLibrary(); renderPick(); clearBlockForm();
   }
   function editBlock(id){
     const b=state.blocks.find(x=>x.id===id); if(!b) return;
-    $('bDoc').value=b.docType; $('bSubject').value=b.subject; $('bSection').value=b.section||'';
+    $('bCategory').value=b.category||''; $('bElement').value=b.element||''; $('bSection').value=b.section||'';
     $('bTitle').value=b.title; $('bStatus').value=b.status||'ready'; $('bBody').value=b.body||'';
     $('bEditId').value=id; $('blockFormTitle').textContent='Edit block';
     window.scrollTo({top:0,behavior:'smooth'});
@@ -381,8 +421,10 @@ Security states the requirement and holds it to account. The relevant discipline
   function dupBlock(id){ const b=state.blocks.find(x=>x.id===id); if(!b)return;
     state.blocks.push(Object.assign({},b,{id:uid(),title:b.title+' (copy)',updated:today()})); save(); renderLibrary(); renderPick(); }
   function sortBlocks(a,b){
-    if(a.docType!==b.docType) return a.docType.localeCompare(b.docType);
-    if(a.subject!==b.subject) return a.subject.localeCompare(b.subject);
+    const ac=a.category||'', bc=b.category||'';
+    if(ac!==bc) return ac.localeCompare(bc);
+    const ae=a.element||'', be=b.element||'';
+    if(ae!==be) return ae.localeCompare(be);
     return (parseFloat(a.section)||99)-(parseFloat(b.section)||99);
   }
   function renderLibrary(){
@@ -390,13 +432,32 @@ Security states the requirement and holds it to account. The relevant discipline
     const list=$('blockList'); list.innerHTML='';
     $('blockCount').textContent = state.blocks.length + ' blocks';
     const rows=state.blocks.slice().sort(sortBlocks)
-      .filter(b=>!q || (b.title+' '+b.docType+' '+b.subject).toLowerCase().includes(q));
+      .filter(b=>!q || (b.title+' '+(b.category||'')+' '+(b.element||'')).toLowerCase().includes(q));
     if(!rows.length){ list.innerHTML='<div class="empty">No blocks match.</div>'; return; }
+    // group by category, then element
+    let lastCat=null, lastEl=null;
     rows.forEach(b=>{
+      if(b.category!==lastCat){
+        lastCat=b.category; lastEl=null;
+        const n=rows.filter(x=>x.category===lastCat).length;
+        const h=document.createElement('div');
+        h.style.cssText='margin:16px 0 8px; font:600 12px Inter; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); border-bottom:1px solid var(--line); padding-bottom:5px;';
+        h.textContent=(b.category||'Uncategorised')+'  ('+n+')';
+        list.appendChild(h);
+      }
+      if((b.element||'')!==lastEl){
+        lastEl=b.element||'';
+        if(lastEl){
+          const s=document.createElement('div');
+          s.style.cssText='margin:10px 0 6px; font-size:11.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.06em;';
+          s.textContent=lastEl;
+          list.appendChild(s);
+        }
+      }
       const el=document.createElement('div'); el.className='item';
       el.innerHTML='<div class="top"><span class="t">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+'</span>'+
         '<span class="badge'+(b.status==='draft'?' draft':'')+'">'+esc(b.status||'ready')+'</span></div>'+
-        '<div class="meta">'+esc(b.docType)+' · '+esc(b.subject)+' · '+countPh(b.body).length+' placeholders</div>'+
+        '<div class="meta">'+countPh(b.body).length+' placeholders</div>'+
         '<div class="acts"><button class="btn" data-ed="'+b.id+'">Edit</button><button class="btn" data-dup="'+b.id+'">Duplicate</button><button class="btn" data-del="'+b.id+'">Delete</button></div>';
       list.appendChild(el);
     });
@@ -415,19 +476,24 @@ Security states the requirement and holds it to account. The relevant discipline
     const list=$('pickList'); list.innerHTML='';
     const sel=state.build.selected;
     const chosen=selectedBlocks();
-    const rest=state.blocks.slice().sort(sortBlocks).filter(b=>!sel.includes(b.id));
+    const catFilter=($('buildCat').value||'').trim().toLowerCase();
+    const rest=state.blocks.slice().sort(sortBlocks)
+      .filter(b=>!sel.includes(b.id))
+      .filter(b=>!catFilter || (b.category||'').toLowerCase().includes(catFilter));
     if(!state.blocks.length){ list.innerHTML='<div class="empty">No blocks yet.</div>'; return; }
+    const tag=(b)=>esc([b.category,b.element].filter(Boolean).join(' / '));
     chosen.forEach((b,i)=>{
       const el=document.createElement('div'); el.className='pick';
-      el.innerHTML='<input type="checkbox" checked data-tog="'+b.id+'"><span class="nm">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+' <span class="badge'+(b.status==='draft'?' draft':'')+'">'+esc(b.subject)+'</span></span>'+
+      el.innerHTML='<input type="checkbox" checked data-tog="'+b.id+'"><span class="nm">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+' <span class="badge'+(b.status==='draft'?' draft':'')+'">'+tag(b)+'</span></span>'+
         '<span class="ord"><button class="btn" data-up="'+b.id+'"'+(i===0?' disabled':'')+'>up</button><button class="btn" data-down="'+b.id+'"'+(i===chosen.length-1?' disabled':'')+'>down</button></span>';
       list.appendChild(el);
     });
     if(rest.length){
-      const h=document.createElement('div'); h.className='hint'; h.style.marginTop='14px'; h.textContent='Not included:'; list.appendChild(h);
+      const h=document.createElement('div'); h.className='hint'; h.style.marginTop='14px';
+      h.textContent='Not included'+(catFilter?' (filtered)':'')+':'; list.appendChild(h);
       rest.forEach(b=>{
         const el=document.createElement('div'); el.className='pick';
-        el.innerHTML='<input type="checkbox" data-tog="'+b.id+'"><span class="nm">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+' <span class="badge'+(b.status==='draft'?' draft':'')+'">'+esc(b.subject)+'</span></span>';
+        el.innerHTML='<input type="checkbox" data-tog="'+b.id+'"><span class="nm">'+(b.section?esc(b.section)+'. ':'')+esc(b.title)+' <span class="badge'+(b.status==='draft'?' draft':'')+'">'+tag(b)+'</span></span>';
         list.appendChild(el);
       });
     }
@@ -540,7 +606,7 @@ Security states the requirement and holds it to account. The relevant discipline
   }
 
   // ---------- boot ----------
-  $('foot').textContent='Blocks are your reusable components. Placeholders like {{threat_vehicle}} are filled once per report and applied across every block. Export writes a real .docx named to the convention Project_DocType_Subject_vN_Year. HVM blocks are seeded as drafts from the wiki: they are a starting point for your judgement, not a finished requirement.';
+  $('foot').textContent='Blocks are your reusable components, organised as Category then Element. Both are open lists: type a name that does not exist yet and it becomes one. Placeholders like {{threat_vehicle}} are filled once per report and applied across every block. Export writes a real .docx named to the convention Project_DocType_Subject_vN_Year. The seeded HVM blocks are drafts from the wiki: a starting point for your judgement, not a finished requirement.';
   document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -552,9 +618,13 @@ Security states the requirement and holds it to account. The relevant discipline
   $('libFilter').addEventListener('input', renderLibrary);
   $('exportDocx').addEventListener('click', exportDocx);
   ['dProject','dDocType','dSubject','dVersion','dYear','dAuthor','dTitle'].forEach(i=>$(i).addEventListener('change', saveMeta));
+  $('buildCat').addEventListener('input', renderPick);
   $('selectAllDoc').addEventListener('click', ()=>{
-    const dt=($('dDocType').value.trim()||'OR2').toLowerCase();
-    state.build.selected = state.blocks.slice().sort(sortBlocks).filter(b=>b.docType.toLowerCase()===dt).map(b=>b.id);
+    const cat=($('buildCat').value||'').trim().toLowerCase();
+    const add=state.blocks.slice().sort(sortBlocks)
+      .filter(b=>!cat || (b.category||'').toLowerCase().includes(cat))
+      .map(b=>b.id).filter(id=>!state.build.selected.includes(id));
+    state.build.selected=state.build.selected.concat(add);
     save(); renderPick(); renderPlaceholders();
   });
 
@@ -568,12 +638,15 @@ Security states the requirement and holds it to account. The relevant discipline
     try{
       const { data, error } = await sb.from('app_data').select('data').eq('tool',TOOL).maybeSingle();
       if(error) throw error;
-      if(data && data.data) state=Object.assign({ blocks:[], build:{selected:[],values:{},meta:{}} }, data.data);
+      if(data && data.data) state=Object.assign({ blocks:[], categories:[], elements:[], build:{selected:[],values:{},meta:{}} }, data.data);
       if(!state.build) state.build={selected:[],values:{},meta:{}};
-      if(!state.blocks || !state.blocks.length){ state.blocks=seedBlocks(); save(); }
+      if(!state.categories) state.categories=[];
+      if(!state.elements) state.elements=[];
+      if(!state.blocks || !state.blocks.length){ state.blocks=seedBlocks(); migrate(); save(); }
+      else { const before=JSON.stringify(state.blocks); migrate(); if(JSON.stringify(state.blocks)!==before) save(); }
       setStatus('saved','good');
-    }catch(e){ setStatus('offline - not loaded','bad'); if(!state.blocks.length) state.blocks=seedBlocks(); }
-    loadMeta(); renderLibrary(); renderPick(); renderPlaceholders();
+    }catch(e){ setStatus('offline - not loaded','bad'); if(!state.blocks.length){ state.blocks=seedBlocks(); migrate(); } }
+    refreshLists(); loadMeta(); renderLibrary(); renderPick(); renderPlaceholders();
   })();
 })();
 </script>
