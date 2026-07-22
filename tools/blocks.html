@@ -545,9 +545,20 @@ Security states the requirement and holds it to account. The relevant discipline
                       .filter(cells=>!cells.every(c=>/^:?-{2,}:?$/.test(c)));
         if(rows.length){
           const width={ size:100, type:D.WidthType.PERCENTAGE };
-          kids.push(new D.Table({ width, rows: rows.map((cells,ri)=> new D.TableRow({ children: cells.map(c=>
-            new D.TableCell({ children:[ new D.Paragraph({ children: ri===0 ? [new D.TextRun({text:c.replace(/\*\*/g,''),bold:true})] : runs(c,D) }) ] })
-          )})) }));
+          // House table look: dark header row, white bold text, thin grey grid.
+          kids.push(new D.Table({ width, rows: rows.map((cells,ri)=> new D.TableRow({
+            tableHeader: ri===0,
+            children: cells.map(c=> new D.TableCell({
+              shading: ri===0 ? { fill:'121212' } : undefined,
+              margins: { top:60, bottom:60, left:110, right:110 },
+              children:[ new D.Paragraph({
+                spacing:{ after:0, line:240, lineRule:'auto' },
+                children: ri===0
+                  ? [new D.TextRun({ text:c.replace(/\*\*/g,''), bold:true, color:'FFFFFF' })]
+                  : runs(c,D)
+              }) ]
+            }))
+          })) }));
           kids.push(new D.Paragraph(''));
         }
         continue;
@@ -578,14 +589,36 @@ Security states the requirement and holds it to account. The relevant discipline
       const children=[];
       children.push(new D.Paragraph({ text: fill($('dTitle').value.trim()||'Operational Requirement'), heading:D.HeadingLevel.TITLE }));
       const meta=[$('dProject').value.trim(), $('dDocType').value.trim(), 'v'+($('dVersion').value||'1'), $('dYear').value, $('dAuthor').value.trim()].filter(Boolean).join('  ·  ');
-      children.push(new D.Paragraph({ children:[ new D.TextRun({ text:meta, color:'666666' }) ] }));
+      children.push(new D.Paragraph({ children:[ new D.TextRun({ text:meta, color:'4D4D4D' }) ] }));
       children.push(new D.Paragraph(''));
       blocks.forEach(b=>{
         children.push(new D.Paragraph({ text: fill((b.section?b.section+'. ':'')+b.title), heading:D.HeadingLevel.HEADING_1 }));
         mdToDocx(fill(b.body), D).forEach(k=>children.push(k));
         children.push(new D.Paragraph(''));
       });
-      const doc=new D.Document({ styles:{ default:{ document:{ run:{ font:'Calibri', size:22 } } } }, sections:[{ children }] });
+      // House report format, taken from the BH Report Format Template styles.
+      // Typography and page setup only: no logo or letterhead (this file is public).
+      const doc=new D.Document({
+        styles:{ default:{
+          document: { run:{ font:'Segoe UI', size:20 },
+                      paragraph:{ spacing:{ after:180, line:280, lineRule:'atLeast' } } },
+          title:    { run:{ font:'Segoe UI', size:56, bold:true },
+                      paragraph:{ spacing:{ before:540, after:540 } } },
+          heading1: { run:{ font:'Segoe UI', size:30, bold:true, color:'121212' },
+                      paragraph:{ spacing:{ before:480, after:360, line:280, lineRule:'atLeast' } } },
+          heading2: { run:{ font:'Segoe UI', size:26, bold:true, color:'121212' },
+                      paragraph:{ spacing:{ before:165, after:90, line:360, lineRule:'atLeast' } } },
+          heading3: { run:{ font:'Segoe UI', size:22, bold:true, color:'121212' },
+                      paragraph:{ spacing:{ after:180, line:280, lineRule:'atLeast' } } },
+        } },
+        sections:[{
+          properties:{ page:{
+            size:{ width:11906, height:16838 },                                   // A4
+            margin:{ top:850, right:850, bottom:850, left:850, header:562, footer:461 }
+          } },
+          children
+        }]
+      });
       const blob=await D.Packer.toBlob(doc);
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename();
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
