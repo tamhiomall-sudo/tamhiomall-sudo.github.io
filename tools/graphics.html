@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Graphics · Adriaan Bosch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Excalidraw (0.18) browser embed, per the official docs: ESM via esm.sh + import maps -->
+<link rel="stylesheet" href="https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/dev/index.css" />
+<script>
+  window.EXCALIDRAW_ASSET_PATH = "https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/prod/";
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client"
+  }
+}
+</script>
+
+<style>
+  :root { --bg:#16191d; --card:#1C1F23; --line:#2f333a; --text:#f0ece4; --dim:#9a948a;
+          --accent:#C8A15A; --good:#4ecb8d; --warn:#e6c05a; --bad:#e66a5a; }
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body { background:var(--bg); color:var(--text); margin:0; padding:0;
+    font:15px/1.5 'Source Sans 3',-apple-system,'Segoe UI',Roboto,sans-serif;
+    display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .acctbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 22px; font-size:12.5px; color:var(--dim); border-bottom:1px solid var(--line); }
+  .acctbar .who { color:var(--text); } .acctbar .spacer { flex:1; }
+  .syncstatus { font-size:11.5px; } .syncstatus.good { color:var(--good); } .syncstatus.bad { color:var(--bad); }
+  .btn { background:#262a2f; border:1px solid var(--line); color:var(--text); border-radius:8px; padding:6px 12px; font:12px inherit; cursor:pointer; }
+  .btn:hover { border-color:var(--accent); color:var(--accent); }
+  h1 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:22px; margin:0; letter-spacing:-0.01em; }
+  .head { display:flex; align-items:center; gap:16px; padding:10px 22px; }
+  .tabs { display:flex; gap:8px; }
+  .tab { background:none; border:1px solid var(--line); color:var(--dim); border-radius:8px; padding:7px 15px; font:600 12px 'Source Sans 3'; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; }
+  .tab.active { color:var(--text); border-color:var(--accent); }
+  .view { display:none; flex:1; min-height:0; } .view.active { display:flex; flex-direction:column; }
+
+  /* Draw view */
+  .drawbar { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; padding:8px 22px 12px; border-bottom:1px solid var(--line); }
+  .drawbar .f { display:flex; flex-direction:column; gap:4px; }
+  .drawbar label { font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); }
+  .drawbar input { padding:8px 10px; font:14px 'Source Sans 3',sans-serif; background:#141619; color:var(--text); border:1px solid var(--line); border-radius:8px; }
+  .drawbar input:focus { outline:none; border-color:var(--accent); }
+  .drawbar .grow { flex:1; min-width:150px; }
+  .drawbar .save { background:var(--accent); color:#16110a; border:none; font-weight:600; text-transform:uppercase; letter-spacing:.08em; font-size:12px; padding:9px 16px; border-radius:8px; cursor:pointer; }
+  .drawbar .save:hover { filter:brightness(1.06); }
+  #excalWrap { flex:1; min-height:0; position:relative; background:#fff; }
+  #excal { position:absolute; inset:0; }
+  .drawmsg { font-size:11.5px; color:var(--dim); align-self:center; }
+  .excal-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#555; font-size:14px; background:#fff; }
+
+  /* Library view */
+  .libwrap { flex:1; min-height:0; overflow:auto; padding:16px 22px 40px; }
+  .libfilters { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end; }
+  .libfilters select, .libfilters input { padding:9px 11px; font:14px 'Source Sans 3',sans-serif; background:#141619; color:var(--text); border:1px solid var(--line); border-radius:8px; }
+  .libfilters label { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); margin-bottom:4px; }
+  .ggrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; }
+  .gcard { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
+  .gcard .thumb { height:150px; background:#fff center/contain no-repeat; border-bottom:1px solid var(--line); }
+  .gcard .body { padding:11px 13px; }
+  .gcard .t { font-weight:500; font-size:14px; }
+  .gcard .meta { font-size:11.5px; color:var(--dim); margin-top:3px; }
+  .gcard .acts { display:flex; gap:7px; flex-wrap:wrap; padding:0 13px 12px; }
+  .gcard .acts button { font-size:11px; padding:4px 9px; }
+  .tag { display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:5px; background:#262a2f; color:var(--dim); margin:3px 3px 0 0; }
+  .empty { color:var(--dim); font-size:13px; padding:20px 0; }
+  .foot { color:var(--dim); font-size:11px; padding:10px 22px; border-top:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<div class="acctbar">
+  <span class="who" id="whoami">&nbsp;</span>
+  <span class="syncstatus" id="syncStatus">connecting...</span>
+  <span class="spacer"></span>
+  <a href="./">Your tools</a>
+  <button class="btn" id="signout">Sign out</button>
+</div>
+
+<div class="head">
+  <h1>Graphics</h1>
+  <div class="tabs">
+    <button class="tab active" data-view="draw">Draw</button>
+    <button class="tab" data-view="lib">Library <span id="gcount"></span></button>
+  </div>
+</div>
+
+<!-- DRAW -->
+<div class="view active" id="view-draw">
+  <div class="drawbar">
+    <div class="f grow"><label for="gTitle">Title</label><input id="gTitle" placeholder="Site zoning diagram"></div>
+    <div class="f"><label for="gCategory">Category</label><input id="gCategory" list="gcatlist" placeholder="Zoning"><datalist id="gcatlist"></datalist></div>
+    <div class="f grow"><label for="gTags">Tags (comma separated)</label><input id="gTags" placeholder="perimeter, layered defence"></div>
+    <button class="save" id="saveGraphic">Save</button>
+    <button class="btn" id="newGraphic">New</button>
+    <button class="btn" id="exportPng">Export PNG</button>
+    <button class="btn" id="exportSvg">Export SVG</button>
+    <span class="drawmsg" id="drawMsg"></span>
+    <input type="hidden" id="gEditId" value="">
+  </div>
+  <div id="excalWrap">
+    <div class="excal-loading" id="excalLoading">Loading the canvas...</div>
+    <div id="excal"></div>
+  </div>
+</div>
+
+<!-- LIBRARY -->
+<div class="view" id="view-lib">
+  <div class="libwrap">
+    <div class="libfilters">
+      <div><label for="fCat">Category</label><select id="fCat"><option value="">All categories</option></select></div>
+      <div><label for="fTag">Tag</label><select id="fTag"><option value="">All tags</option></select></div>
+      <div><label for="fSearch">Search</label><input id="fSearch" placeholder="Search titles"></div>
+      <div style="align-self:flex-end;"><button class="btn" id="fClear">Clear</button></div>
+    </div>
+    <div id="gGrid" class="ggrid"></div>
+  </div>
+</div>
+
+<p class="foot" id="foot"></p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
+<script type="module">
+  import React from "react";
+  import { createRoot } from "react-dom/client";
+  import * as Excalidraw from "https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/dev/index.js?external=react,react-dom";
+
+  const C = window.TOOLS_CONFIG;
+  const TOOL = 'graphics';
+  const sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  const today = () => new Date().toISOString().slice(0,10);
+  const esc = (s) => String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  let state = { graphics: [], categories: [], tags: [] };
+  let api = null;               // the Excalidraw API
+  let editId = '';
+
+  // ---------- persistence (mirrors the other tools) ----------
+  let saveTimer = null;
+  function setStatus(t,c){ const e=$('syncStatus'); if(e){ e.textContent=t; e.className='syncstatus '+(c||''); } }
+  function persist(){
+    setStatus('saving...');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        const { data:{ session } } = await sb.auth.getSession();
+        if(!session){ location.replace('./'); return; }
+        const { error } = await sb.from('app_data').upsert(
+          { user_id: session.user.id, tool: TOOL, data: state },
+          { onConflict: 'user_id,tool' });
+        if(error) throw error;
+        setStatus('saved','good');
+      } catch(e){ setStatus('not saved - will retry','bad'); clearTimeout(saveTimer); saveTimer=setTimeout(persist,5000); }
+    }, 600);
+  }
+
+  // ---------- Excalidraw mount ----------
+  function mountCanvas(){
+    const root = createRoot($('excal'));
+    root.render(
+      React.createElement(Excalidraw.Excalidraw, {
+        excalidrawAPI: (a) => { api = a; $('excalLoading').style.display='none'; },
+        initialData: { appState: { gridModeEnabled: true, viewBackgroundColor: '#ffffff' }, scrollToContent: true },
+        theme: 'light',
+        name: 'Security graphic'
+      })
+    );
+  }
+
+  function scene(){
+    return { elements: api.getSceneElements(), appState: api.getAppState(), files: api.getFiles() };
+  }
+  function hasContent(){ return api && api.getSceneElements().length > 0; }
+
+  async function toPngBlob(sc){
+    return await Excalidraw.exportToBlob({
+      elements: sc.elements,
+      appState: { ...sc.appState, exportBackground:true, exportWithDarkMode:false, exportScale:2 },
+      files: sc.files, mimeType: 'image/png'
+    });
+  }
+  async function makeThumb(sc){
+    if(!sc.elements.length) return '';
+    try{
+      const blob = await Excalidraw.exportToBlob({
+        elements: sc.elements,
+        appState: { ...sc.appState, exportBackground:true, exportWithDarkMode:false, exportScale:1 },
+        files: sc.files, mimeType: 'image/png'
+      });
+      const bmp = await createImageBitmap(blob);
+      const scl = Math.min(1, 320 / bmp.width);
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(bmp.width*scl));
+      cv.height = Math.max(1, Math.round(bmp.height*scl));
+      const ctx = cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.drawImage(bmp,0,0,cv.width,cv.height);
+      return cv.toDataURL('image/jpeg',0.72);
+    }catch(e){ return ''; }
+  }
+  function download(blob, name){
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  const slug = (s) => (s||'graphic').trim().replace(/[^\w]+/g,'-').replace(/^-|-$/g,'') || 'graphic';
+
+  // ---------- taxonomy ----------
+  function allCats(){ const s=new Set(state.categories||[]); (state.graphics||[]).forEach(g=>{ if(g.category) s.add(g.category); }); return [...s].sort(); }
+  function allTags(){ const s=new Set(state.tags||[]); (state.graphics||[]).forEach(g=>(g.tags||[]).forEach(t=>s.add(t))); return [...s].sort(); }
+  function refreshLists(){
+    $('gcatlist').innerHTML = allCats().map(c=>'<option value="'+esc(c)+'">').join('');
+    const fc=$('fCat'), ft=$('fTag');
+    const cc=fc.value, ct=ft.value;
+    fc.innerHTML='<option value="">All categories</option>'+allCats().map(c=>'<option>'+esc(c)+'</option>').join('');
+    ft.innerHTML='<option value="">All tags</option>'+allTags().map(t=>'<option>'+esc(t)+'</option>').join('');
+    if(allCats().includes(cc)) fc.value=cc;
+    if(allTags().includes(ct)) ft.value=ct;
+  }
+
+  // ---------- form ----------
+  function clearForm(){ $('gTitle').value=''; $('gCategory').value=''; $('gTags').value=''; $('gEditId').value=''; editId=''; }
+  function newGraphic(){
+    if(hasContent() && !confirm('Clear the canvas and start a new drawing? Save first if you want to keep it.')) return;
+    if(api) api.resetScene();
+    clearForm(); $('drawMsg').textContent='New drawing.';
+  }
+  async function saveGraphic(){
+    if(!api){ $('drawMsg').textContent='Canvas still loading.'; return; }
+    const title = $('gTitle').value.trim();
+    if(!title){ $('drawMsg').textContent='Give the drawing a title.'; return; }
+    if(!hasContent()){ $('drawMsg').textContent='Nothing on the canvas to save.'; return; }
+    $('drawMsg').textContent='Saving...';
+    const sc = scene();
+    const sceneJson = Excalidraw.serializeAsJSON(sc.elements, sc.appState, sc.files, 'local');
+    const thumb = await makeThumb(sc);
+    const tags = $('gTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+    tags.forEach(t=>{ if(!allTags().includes(t)) (state.tags=state.tags||[]).push(t); });
+    const cat = $('gCategory').value.trim();
+    if(cat && !allCats().includes(cat)) (state.categories=state.categories||[]).push(cat);
+    const rec = { title, category:cat, tags, scene:sceneJson, thumb, updated:today() };
+    const id = $('gEditId').value;
+    if(id){ const g=state.graphics.find(x=>x.id===id); Object.assign(g,rec); }
+    else { const nid=uid(); state.graphics.push(Object.assign({id:nid},rec)); $('gEditId').value=nid; editId=nid; }
+    persist(); refreshLists(); renderLib();
+    $('drawMsg').textContent='Saved. It is in your Library.';
+  }
+
+  function openGraphic(id){
+    const g = state.graphics.find(x=>x.id===id); if(!g||!api) return;
+    let data; try { data = JSON.parse(g.scene); } catch(e){ $('drawMsg').textContent='Could not read that drawing.'; return; }
+    api.updateScene({ elements: data.elements || [], appState: { gridModeEnabled:true, viewBackgroundColor:(data.appState&&data.appState.viewBackgroundColor)||'#ffffff' } });
+    if(data.files){ try { api.addFiles(Object.values(data.files)); } catch(e){} }
+    try { api.scrollToContent(api.getSceneElements(), { fitToContent:true }); } catch(e){}
+    $('gTitle').value=g.title||''; $('gCategory').value=g.category||''; $('gTags').value=(g.tags||[]).join(', ');
+    $('gEditId').value=g.id; editId=g.id;
+    switchView('draw'); $('drawMsg').textContent='Opened "'+g.title+'". Edit and Save to update it.';
+  }
+  function delGraphic(id){
+    const g=state.graphics.find(x=>x.id===id); if(!g) return;
+    if(!confirm('Delete "'+g.title+'"?')) return;
+    state.graphics = state.graphics.filter(x=>x.id!==id);
+    if(editId===id) clearForm();
+    persist(); refreshLists(); renderLib();
+  }
+  async function exportGraphicPng(id){
+    const g=state.graphics.find(x=>x.id===id); if(!g) return;
+    const data=JSON.parse(g.scene);
+    const blob=await toPngBlob({ elements:data.elements||[], appState:data.appState||{}, files:data.files||{} });
+    download(blob, slug(g.title)+'.png');
+  }
+
+  async function exportCurrent(kind){
+    if(!api || !hasContent()){ $('drawMsg').textContent='Nothing on the canvas to export.'; return; }
+    const sc=scene(); const name=slug($('gTitle').value||'graphic');
+    if(kind==='png'){ download(await toPngBlob(sc), name+'.png'); }
+    else {
+      const svg = await Excalidraw.exportToSvg({ elements:sc.elements, appState:{...sc.appState, exportBackground:true, exportWithDarkMode:false}, files:sc.files });
+      const str = new XMLSerializer().serializeToString(svg);
+      download(new Blob([str],{type:'image/svg+xml'}), name+'.svg');
+    }
+    $('drawMsg').textContent='Exported. Drop it into your Word report.';
+  }
+
+  // ---------- library render ----------
+  function renderLib(){
+    const q=$('fSearch').value.toLowerCase(), fc=$('fCat').value, ft=$('fTag').value;
+    const grid=$('gGrid'); grid.innerHTML='';
+    const rows = (state.graphics||[]).slice().sort((a,b)=>(b.updated||'').localeCompare(a.updated||''))
+      .filter(g=>!fc || g.category===fc)
+      .filter(g=>!ft || (g.tags||[]).includes(ft))
+      .filter(g=>!q || (g.title||'').toLowerCase().includes(q));
+    $('gcount').textContent = state.graphics.length ? '('+state.graphics.length+')' : '';
+    if(!rows.length){ grid.innerHTML='<div class="empty">No drawings yet. Draw one on the Draw tab and Save it.</div>'; return; }
+    rows.forEach(g=>{
+      const d=document.createElement('div'); d.className='gcard';
+      const tags=(g.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+      d.innerHTML =
+        '<div class="thumb" style="background-image:url('+(g.thumb||'')+')"></div>'+
+        '<div class="body"><div class="t">'+esc(g.title||'Untitled')+'</div>'+
+        '<div class="meta">'+esc(g.category||'Uncategorised')+' · '+esc(g.updated||'')+'</div>'+tags+'</div>'+
+        '<div class="acts"><button class="btn" data-open="'+g.id+'">Open</button>'+
+        '<button class="btn" data-png="'+g.id+'">PNG</button>'+
+        '<button class="btn" data-del="'+g.id+'">Delete</button></div>';
+      grid.appendChild(d);
+    });
+    grid.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openGraphic(b.dataset.open));
+    grid.querySelectorAll('[data-png]').forEach(b=>b.onclick=()=>exportGraphicPng(b.dataset.png));
+    grid.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delGraphic(b.dataset.del));
+  }
+
+  // ---------- tabs ----------
+  function switchView(v){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.view===v));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    $('view-'+v).classList.add('active');
+    if(v==='lib') renderLib();
+  }
+
+  // ---------- wiring ----------
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.view));
+  $('saveGraphic').onclick=saveGraphic;
+  $('newGraphic').onclick=newGraphic;
+  $('exportPng').onclick=()=>exportCurrent('png');
+  $('exportSvg').onclick=()=>exportCurrent('svg');
+  $('fCat').onchange=renderLib; $('fTag').onchange=renderLib; $('fSearch').oninput=renderLib;
+  $('fClear').onclick=()=>{ $('fSearch').value=''; $('fCat').value=''; $('fTag').value=''; renderLib(); };
+  $('foot').textContent='Draw with the grid on (snap keeps boxes aligned and the same size), then Save to keep it in your Library, tagged and searchable. Export PNG or SVG to drop the graphic into a Word report. Drawings are stored as small vector scenes, so the library stays light; large raster image uploads are a later addition.';
+
+  sb.auth.onAuthStateChange((_e,s)=>{ if(!s) location.replace('./'); });
+  $('signout').onclick = async ()=>{ await sb.auth.signOut(); location.replace('./'); };
+
+  (async function boot(){
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.replace('./'); return; }
+    $('whoami').textContent = session.user.email;
+    try{
+      const { data, error } = await sb.from('app_data').select('data').eq('tool',TOOL).maybeSingle();
+      if(error) throw error;
+      if(data && data.data) state = Object.assign({ graphics:[], categories:[], tags:[] }, data.data);
+      setStatus('saved','good');
+    }catch(e){ setStatus('offline - not loaded','bad'); }
+    refreshLists(); renderLib(); mountCanvas();
+  })();
+</script>
+
+</body>
+</html>
