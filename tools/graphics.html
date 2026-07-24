@@ -146,7 +146,7 @@
   const today = () => new Date().toISOString().slice(0,10);
   const esc = (s) => String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-  let state = { graphics: [], categories: [], tags: [] };
+  let state = { graphics: [], categories: [], tags: [], library: [] };
   let api = null;               // the Excalidraw API
   let editId = '';
 
@@ -172,10 +172,17 @@
   // ---------- Excalidraw mount ----------
   function mountCanvas(){
     const root = createRoot($('excal'));
+    const returnUrl = location.href.split('#')[0];   // so "Add to Excalidraw" returns here, not excalidraw.com
     root.render(
       React.createElement(Excalidraw.Excalidraw, {
         excalidrawAPI: (a) => { api = a; $('excalLoading').style.display='none'; },
-        initialData: { appState: { gridModeEnabled: true, viewBackgroundColor: '#ffffff' }, scrollToContent: true },
+        initialData: {
+          appState: { gridModeEnabled: true, viewBackgroundColor: '#ffffff' },
+          libraryItems: state.library || [],
+          scrollToContent: true
+        },
+        onLibraryChange: (items) => { state.library = items; persist(); },
+        libraryReturnUrl: returnUrl,
         theme: 'light',
         name: 'Security graphic'
       })
@@ -338,7 +345,7 @@
   $('exportSvg').onclick=()=>exportCurrent('svg');
   $('fCat').onchange=renderLib; $('fTag').onchange=renderLib; $('fSearch').oninput=renderLib;
   $('fClear').onclick=()=>{ $('fSearch').value=''; $('fCat').value=''; $('fTag').value=''; renderLib(); };
-  $('foot').textContent='Draw with the grid on (snap keeps boxes aligned and the same size), then Save to keep it in your Library, tagged and searchable. Export PNG or SVG to drop the graphic into a Word report. Drawings are stored as small vector scenes, so the library stays light; large raster image uploads are a later addition.';
+  $('foot').textContent='Draw with the grid on (snap keeps boxes aligned and the same size), then Save to keep it in your Library, tagged and searchable. Export PNG or SVG to drop the graphic into a Word report. The Excalidraw library panel (book icon on the canvas) holds reusable shapes and icon sets; anything you import or save there is now kept on your account and always available. Drawings and libraries are stored as small vector scenes, so it stays light; large raster image uploads are a later addition.';
 
   sb.auth.onAuthStateChange((_e,s)=>{ if(!s) location.replace('./'); });
   $('signout').onclick = async ()=>{ await sb.auth.signOut(); location.replace('./'); };
@@ -350,7 +357,7 @@
     try{
       const { data, error } = await sb.from('app_data').select('data').eq('tool',TOOL).maybeSingle();
       if(error) throw error;
-      if(data && data.data) state = Object.assign({ graphics:[], categories:[], tags:[] }, data.data);
+      if(data && data.data) state = Object.assign({ graphics:[], categories:[], tags:[], library:[] }, data.data);
       setStatus('saved','good');
     }catch(e){ setStatus('offline - not loaded','bad'); }
     refreshLists(); renderLib(); mountCanvas();
