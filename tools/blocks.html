@@ -7,13 +7,13 @@
 <title>Blocks · Adriaan Bosch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root { --bg:#16191d; --card:#1C1F23; --line:#2f333a; --text:#f0ece4; --dim:#9a948a;
           --accent:#C8A15A; --good:#4ecb8d; --warn:#e6c05a; --bad:#e66a5a; }
   * { box-sizing:border-box; }
   body { background:var(--bg); color:var(--text); margin:0; padding:24px;
-    font:15px/1.5 'Inter',-apple-system,'Segoe UI',Roboto,sans-serif; }
+    font:15px/1.5 'Source Sans 3',-apple-system,'Segoe UI',Roboto,sans-serif; }
   a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
   .acctbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:16px; font-size:12.5px; color:var(--dim); }
   .acctbar .who { color:var(--text); } .acctbar .spacer { flex:1; }
@@ -22,7 +22,7 @@
   .acctbar button:hover, .btn:hover { border-color:var(--accent); color:var(--accent); }
   h1 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:27px; margin:0 0 16px; letter-spacing:-0.01em; }
   .tabs { display:flex; gap:8px; margin-bottom:20px; }
-  .tab { background:none; border:1px solid var(--line); color:var(--dim); border-radius:8px; padding:8px 16px; font:600 12px 'Inter'; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; }
+  .tab { background:none; border:1px solid var(--line); color:var(--dim); border-radius:8px; padding:8px 16px; font:600 12px 'Source Sans 3'; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; }
   .tab.active { color:var(--text); border-color:var(--accent); }
   .view { display:none; } .view.active { display:block; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; }
@@ -30,11 +30,11 @@
   .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
   .panel h2 { font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
   label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); margin:14px 0 6px; }
-  input, select, textarea { width:100%; padding:10px 12px; font:15px 'Inter',sans-serif; background:#141619; color:var(--text); border:1px solid var(--line); border-radius:8px; }
+  input, select, textarea { width:100%; padding:10px 12px; font:15px 'Source Sans 3',sans-serif; background:#141619; color:var(--text); border:1px solid var(--line); border-radius:8px; }
   input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent); }
   textarea { min-height:260px; resize:vertical; font-family:ui-monospace,Menlo,monospace; font-size:13px; line-height:1.55; }
   .row { display:flex; gap:12px; } .row > div { flex:1; }
-  button.primary { margin-top:16px; width:100%; padding:11px; cursor:pointer; font:600 12.5px 'Inter'; text-transform:uppercase; letter-spacing:.1em; background:var(--accent); color:#16110a; border:none; border-radius:8px; }
+  button.primary { margin-top:16px; width:100%; padding:11px; cursor:pointer; font:600 12.5px 'Source Sans 3'; text-transform:uppercase; letter-spacing:.1em; background:var(--accent); color:#16110a; border:none; border-radius:8px; }
   button.primary:hover { filter:brightness(1.06); }
   .item { border:1px solid var(--line); border-radius:9px; padding:11px 13px; margin-bottom:9px; background:#212429; }
   .item .top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
@@ -72,6 +72,7 @@
 
 <div class="tabs">
   <button class="tab active" data-view="lib">Block library</button>
+  <button class="tab" data-view="import">Import</button>
   <button class="tab" data-view="build">Build a report</button>
 </div>
 
@@ -101,10 +102,29 @@
     <div class="panel">
       <h2>Library <span id="blockCount" class="badge"></span></h2>
       <div class="row">
-        <div><input id="libFilter" placeholder="Filter by title, type or subject"></div>
+        <div><label for="libCat">Category</label><select id="libCat"><option value="">All categories</option></select></div>
+        <div><label for="libElem">Element / system</label><select id="libElem"><option value="">All elements</option></select></div>
+        <div><label for="libStatus">Status</label><select id="libStatus"><option value="">All statuses</option><option value="ready">ready</option><option value="draft">draft</option></select></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><input id="libFilter" placeholder="Search title or placeholder text"></div>
+        <div style="flex:0 0 auto;"><button class="btn" id="clearFilters">Clear</button></div>
       </div>
       <div id="blockList" style="margin-top:12px;"></div>
     </div>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div class="view" id="view-import">
+  <div class="panel" style="max-width:900px;">
+    <h2>Import blocks</h2>
+    <p style="font-size:13px; color:var(--dim); margin:0 0 12px; max-width:80ch;">Paste one or more blocks below and import them in one pass. Everything imported lands as <span class="badge draft">draft</span>: you mark a block ready yourself, once you have read it. Import never overwrites an existing block; it adds new ones.</p>
+    <label for="impText">Blocks to import</label>
+    <textarea id="impText" placeholder="Category: Strategy&#10;Element: 1. Introduction&#10;Order: 1&#10;Title: 1.1 Purpose&#10;---&#10;Body text goes here.&#10;## A heading&#10;- a bullet&#10;| Col | Col |&#10;|---|---|&#10;| a | b |&#10;===&#10;Category: Strategy&#10;Element: 1. Introduction&#10;Order: 2&#10;Title: 1.2 Scope and Limitations&#10;---&#10;The next block's body."></textarea>
+    <div class="hint" style="max-width:80ch;">Format: a few <b>Key: value</b> header lines (Category, Element, Order, Title), then a line with three dashes <b>---</b>, then the block body. Separate one block from the next with a line of three equals signs <b>===</b>. Element and Order are optional. Status is ignored on import: everything comes in as draft.</div>
+    <button class="primary" id="doImport">Import as draft</button>
+    <div id="impMsg" class="hint"></div>
   </div>
 </div>
 
@@ -194,6 +214,15 @@
   function refreshLists(){
     $('catlist').innerHTML = allCategories().map(c=>'<option value="'+esc(c)+'">').join('');
     $('elemlist').innerHTML = allElements().map(e=>'<option value="'+esc(e)+'">').join('');
+    // library filter dropdowns keep their current selection where still valid
+    const cats=allCategories(), elems=allElements();
+    const cSel=$('libCat'), eSel=$('libElem');
+    if(cSel){ const cur=cSel.value;
+      cSel.innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+      if(cats.includes(cur)) cSel.value=cur; }
+    if(eSel){ const cur=eSel.value;
+      eSel.innerHTML='<option value="">All elements</option>'+elems.map(e=>'<option value="'+esc(e)+'">'+esc(e)+'</option>').join('');
+      if(elems.includes(cur)) eSel.value=cur; }
   }
 
   // ---------- seed library (first run only) ----------
@@ -429,10 +458,17 @@ Security states the requirement and holds it to account. The relevant discipline
   }
   function renderLibrary(){
     const q=$('libFilter').value.toLowerCase();
+    const fCat=($('libCat')&&$('libCat').value)||'';
+    const fElem=($('libElem')&&$('libElem').value)||'';
+    const fStatus=($('libStatus')&&$('libStatus').value)||'';
     const list=$('blockList'); list.innerHTML='';
-    $('blockCount').textContent = state.blocks.length + ' blocks';
     const rows=state.blocks.slice().sort(sortBlocks)
-      .filter(b=>!q || (b.title+' '+(b.category||'')+' '+(b.element||'')).toLowerCase().includes(q));
+      .filter(b=>!fCat || (b.category||'')===fCat)
+      .filter(b=>!fElem || (b.element||'')===fElem)
+      .filter(b=>!fStatus || (b.status||'ready')===fStatus)
+      .filter(b=>!q || (b.title+' '+(b.category||'')+' '+(b.element||'')+' '+(b.body||'')).toLowerCase().includes(q));
+    const filtered = rows.length!==state.blocks.length;
+    $('blockCount').textContent = filtered ? (rows.length+' of '+state.blocks.length+' blocks') : (state.blocks.length+' blocks');
     if(!rows.length){ list.innerHTML='<div class="empty">No blocks match.</div>'; return; }
     // group by category, then element
     let lastCat=null, lastEl=null;
@@ -441,7 +477,7 @@ Security states the requirement and holds it to account. The relevant discipline
         lastCat=b.category; lastEl=null;
         const n=rows.filter(x=>x.category===lastCat).length;
         const h=document.createElement('div');
-        h.style.cssText='margin:16px 0 8px; font:600 12px Inter; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); border-bottom:1px solid var(--line); padding-bottom:5px;';
+        h.style.cssText='margin:16px 0 8px; font:600 12px 'Source Sans 3'; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); border-bottom:1px solid var(--line); padding-bottom:5px;';
         h.textContent=(b.category||'Uncategorised')+'  ('+n+')';
         list.appendChild(h);
       }
@@ -464,6 +500,53 @@ Security states the requirement and holds it to account. The relevant discipline
     list.querySelectorAll('[data-ed]').forEach(x=>x.onclick=()=>editBlock(x.dataset.ed));
     list.querySelectorAll('[data-dup]').forEach(x=>x.onclick=()=>dupBlock(x.dataset.dup));
     list.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>delBlock(x.dataset.del));
+  }
+
+  // ---------- import ----------
+  // Parse a paste of one or more blocks. Blocks separated by a line of "===".
+  // Within a block: "Key: value" header lines, then a "---" line, then the body.
+  function parseImport(text){
+    const out=[]; const errors=[];
+    const chunks=String(text||'').split(/^\s*={3,}\s*$/m).map(c=>c.trim()).filter(Boolean);
+    chunks.forEach((chunk,idx)=>{
+      const lines=chunk.split('\n');
+      let sepAt=-1;
+      for(let i=0;i<lines.length;i++){ if(/^\s*-{3,}\s*$/.test(lines[i])){ sepAt=i; break; } }
+      let headerLines, bodyLines;
+      if(sepAt>=0){ headerLines=lines.slice(0,sepAt); bodyLines=lines.slice(sepAt+1); }
+      else { // no separator: treat leading Key: value lines as header, rest as body
+        let h=0; while(h<lines.length && /^[A-Za-z][A-Za-z /]*:\s*/.test(lines[h])) h++;
+        headerLines=lines.slice(0,h); bodyLines=lines.slice(h);
+      }
+      const hdr={};
+      headerLines.forEach(l=>{ const m=l.match(/^([A-Za-z][A-Za-z /]*?):\s*(.*)$/); if(m) hdr[m[1].trim().toLowerCase()]=m[2].trim(); });
+      const title=hdr['title']||'';
+      if(!title){ errors.push('Block '+(idx+1)+': no Title, skipped'); return; }
+      out.push({
+        category: hdr['category']||'Generic',
+        element: hdr['element']||'',
+        section: hdr['order']||hdr['section']||'',
+        title: title,
+        status: 'draft',                                  // forced: Adriaan clears to ready himself
+        body: bodyLines.join('\n').replace(/^\n+/,'').replace(/\n+$/,''),
+        updated: today()
+      });
+    });
+    return { blocks: out, errors };
+  }
+  function doImport(){
+    const raw=$('impText').value;
+    if(!raw.trim()){ $('impMsg').textContent='Nothing to import. Paste some blocks first.'; return; }
+    const { blocks, errors } = parseImport(raw);
+    if(!blocks.length){ $('impMsg').textContent='No blocks found. '+(errors.join('; ')||'Check the format.'); return; }
+    blocks.forEach(rec=>{
+      if(rec.category && !allCategories().includes(rec.category)) (state.categories=state.categories||[]).push(rec.category);
+      if(rec.element && !allElements().includes(rec.element)) (state.elements=state.elements||[]).push(rec.element);
+      state.blocks.push(Object.assign({id:uid()},rec));
+    });
+    save(); refreshLists(); renderLibrary(); renderPick();
+    $('impText').value='';
+    $('impMsg').textContent='Imported '+blocks.length+' block'+(blocks.length===1?'':'s')+' as draft'+(errors.length?'. Skipped: '+errors.join('; '):'.')+' See them in the Block library tab.';
   }
 
   // ---------- build ----------
@@ -639,7 +722,7 @@ Security states the requirement and holds it to account. The relevant discipline
   }
 
   // ---------- boot ----------
-  $('foot').textContent='Blocks are your reusable components, organised as Category then Element. Both are open lists: type a name that does not exist yet and it becomes one. Placeholders like {{threat_vehicle}} are filled once per report and applied across every block. Export writes a real .docx named to the convention Project_DocType_Subject_vN_Year. The seeded HVM blocks are drafts from the wiki: a starting point for your judgement, not a finished requirement.';
+  $('foot').textContent='Blocks are your reusable components, organised as Category then Element. Both are open lists: type a name that does not exist yet and it becomes one. Filter the library by category, element or status, or search the text, to find a block fast as the library grows. Import a batch on the Import tab: everything lands as draft for you to clear. Placeholders like {{threat_vehicle}} are filled once per report and applied across every block. Export writes a real .docx named to the convention Project_DocType_Subject_vN_Year.';
   document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -649,6 +732,11 @@ Security states the requirement and holds it to account. The relevant discipline
   $('saveBlock').addEventListener('click', saveBlock);
   $('newBlock').addEventListener('click', clearBlockForm);
   $('libFilter').addEventListener('input', renderLibrary);
+  $('libCat').addEventListener('change', renderLibrary);
+  $('libElem').addEventListener('change', renderLibrary);
+  $('libStatus').addEventListener('change', renderLibrary);
+  $('clearFilters').addEventListener('click', ()=>{ $('libFilter').value=''; $('libCat').value=''; $('libElem').value=''; $('libStatus').value=''; renderLibrary(); });
+  $('doImport').addEventListener('click', doImport);
   $('exportDocx').addEventListener('click', exportDocx);
   ['dProject','dDocType','dSubject','dVersion','dYear','dAuthor','dTitle'].forEach(i=>$(i).addEventListener('change', saveMeta));
   $('buildCat').addEventListener('input', renderPick);
