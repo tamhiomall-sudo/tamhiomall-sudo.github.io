@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Atomiser · Adriaan Bosch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#16191d; --card:#1C1F23; --line:#2f333a; --text:#f0ece4; --dim:#9a948a;
+          --accent:#C8A15A; --good:#4ecb8d; --warn:#e6c05a; --bad:#e66a5a; }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); margin:0; padding:24px;
+    font:15px/1.5 'Source Sans 3',-apple-system,'Segoe UI',Roboto,sans-serif; }
+  h1 { font:600 26px 'Fraunces',serif; margin:0 0 4px; }
+  h2 { font:600 15px 'Source Sans 3'; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin:0 0 12px; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .wrap { max-width:960px; margin:0 auto; }
+  .lead { color:var(--dim); font-size:13px; margin:0 0 20px; max-width:80ch; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:18px; }
+  label { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--dim); margin:0 0 6px; }
+  code { background:#141619; border:1px solid var(--line); border-radius:5px; padding:1px 5px; font:12px ui-monospace,Menlo,monospace; color:var(--accent); }
+  input, select, textarea { width:100%; padding:10px 12px; font:15px 'Source Sans 3',sans-serif; background:#141619; color:var(--text); border:1px solid var(--line); border-radius:8px; }
+  textarea { resize:vertical; line-height:1.5; }
+  .btn { background:#262a2f; border:1px solid var(--line); color:var(--text); border-radius:8px; padding:7px 13px; font:600 12px 'Source Sans 3'; cursor:pointer; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.sm { padding:4px 9px; font-size:11px; }
+  button.primary { margin-top:14px; padding:11px 20px; cursor:pointer; font:600 12.5px 'Source Sans 3'; text-transform:uppercase; letter-spacing:.1em; background:var(--accent); color:#16110a; border:none; border-radius:8px; }
+  button.primary:hover { filter:brightness(1.08); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+  .row > div { flex:1; min-width:140px; }
+  .hint { font-size:12px; color:var(--dim); margin-top:8px; max-width:80ch; }
+  .drop { border:1.5px dashed var(--line); border-radius:10px; padding:14px; text-align:center; color:var(--dim); font-size:13px; margin-bottom:12px; cursor:pointer; }
+  .drop.over { border-color:var(--accent); color:var(--text); }
+  .atom { border:1px solid var(--line); border-radius:10px; padding:12px 13px; margin-bottom:12px; background:#212429; }
+  .atom .meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .atom .meta input { flex:1; min-width:120px; padding:6px 9px; font-size:13px; }
+  .atom .acts { display:flex; gap:7px; flex-wrap:wrap; margin-top:8px; }
+  .atom textarea { font-size:14px; }
+  .flags { font-size:12px; color:var(--warn); margin-top:8px; }
+  .flags b { color:var(--text); }
+  .flags .chip { display:inline-block; background:#2a2620; border:1px solid var(--warn); color:var(--warn); border-radius:12px; padding:1px 9px; margin:2px 4px 0 0; cursor:pointer; font-size:11px; }
+  .count { color:var(--dim); font-size:12px; margin-left:8px; }
+  .msg { font-size:12.5px; color:var(--good); margin-top:10px; min-height:1em; }
+  .toggle { display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text); margin:0 0 6px; text-transform:none; letter-spacing:0; }
+  .toggle input { width:auto; }
+  #exportOut { min-height:160px; font:13px ui-monospace,Menlo,monospace; }
+  .step { color:var(--accent); font-weight:600; }
+  .marker-box { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+  .marker-box > div:first-child { max-width:120px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Atomiser</h1>
+  <p class="lead">Take text you already wrote, mark where each piece should break, and export the parts straight into the Blocks tool as drafts. Everything runs in your browser: nothing is uploaded.</p>
+
+  <!-- OLLAMA STATUS -->
+  <div class="panel" id="aiPanel" style="padding:12px 16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+    <span id="aiStatus" style="font-size:12.5px; color:var(--dim);">Checking for local Ollama…</span>
+    <select id="aiModel" style="display:none; max-width:220px; width:auto; padding:6px 9px; font-size:13px;"></select>
+    <button class="btn sm" id="aiReconnect">Reconnect</button>
+  </div>
+
+  <!-- STEP 1: INPUT -->
+  <div class="panel">
+    <h2><span class="step">1.</span> Text &amp; break marks</h2>
+    <div class="drop" id="drop">Drop a .txt, .md or .docx file here, or click to choose. Or paste below.</div>
+    <input type="file" id="file" accept=".txt,.md,.markdown,.docx" style="display:none">
+    <label for="srcText">Source text</label>
+    <textarea id="srcText" rows="10" placeholder="Paste your text. Put a marker line where each new atom should start, for example:&#10;&#10;# Purpose&#10;This section sets out why the strategy exists.&#10;&#10;# Scope&#10;What the strategy covers, and what it does not."></textarea>
+    <div class="marker-box" style="margin-top:12px;">
+      <div>
+        <label for="marker">Break marker</label>
+        <input id="marker" value="#">
+      </div>
+      <div style="flex:1;">
+        <label class="toggle"><input type="checkbox" id="mdSafe"> My text is already Markdown (use a safe marker)</label>
+        <div class="hint" style="margin:0;">A line starting with the marker begins a new atom. The rest of that line becomes its title. Tick the box if your source already uses <code>#</code> headings, and the marker switches to <code>@@</code> so your real headings are left alone.</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label class="toggle"><input type="checkbox" id="tidyDash" checked> Replace em/en dashes</label>
+        <label class="toggle"><input type="checkbox" id="tidyBullet"> Strip leading bullets</label>
+        <label class="toggle" style="margin:0;"><input type="checkbox" id="tidyWs" checked> Tidy spacing</label>
+      </div>
+    </div>
+    <button class="primary" id="doAtomise">Break into atoms</button>
+    <button class="btn" id="aiBreak" style="display:none; margin-left:8px;">Suggest breaks with Ollama</button>
+    <div class="hint" id="loadMsg"></div>
+  </div>
+
+  <!-- STEP 2: DEFAULTS + ANONYMISE (always visible) -->
+  <div class="panel">
+    <h2><span class="step">2.</span> Block defaults</h2>
+    <div class="row">
+      <div><label for="dCat">Category</label><input id="dCat" placeholder="e.g. Strategy"></div>
+      <div><label for="dElem">Element (optional)</label><input id="dElem" placeholder="e.g. 1. Introduction"></div>
+    </div>
+    <div class="hint">Applied to every atom. Order auto-numbers from 1. Titles come from your marker lines and you can edit them below.</div>
+  </div>
+
+  <div class="panel">
+    <h2><span class="step">3.</span> Anonymise (mechanical pass)</h2>
+    <label for="stripList">Strip list, one per line: <code>term</code> or <code>term =&gt; placeholder</code></label>
+    <textarea id="stripList" rows="4" placeholder="Acme Foundation => client&#10;Riverside House => site&#10;J-4471"></textarea>
+    <div class="acts" style="display:flex; gap:7px; margin-top:8px; flex-wrap:wrap;">
+      <button class="btn sm" id="doStrip">Apply strip list</button>
+      <button class="btn sm" id="doScan">Scan for identifiers</button>
+      <button class="btn sm" id="aiIdent" style="display:none;">Suggest identifiers with Ollama</button>
+    </div>
+    <div class="hint">Strip replaces each term everywhere across the atoms. With <code>=&gt; client</code> it becomes <code>{{client}}</code>, matching your block placeholders. With no arrow it becomes <code>[redacted]</code>. Scan only flags suspects (names, numbers with units, postcodes): it never removes. The judgement call stays yours. This is a safety net, not the full stranger test.</div>
+  </div>
+
+  <!-- STEP 4: ATOMS -->
+  <div class="panel" id="atomsPanel" style="display:none;">
+    <h2><span class="step">4.</span> Refine the atoms <span class="count" id="atomCount"></span></h2>
+    <div id="atoms"></div>
+  </div>
+
+  <!-- STEP 5: EXPORT -->
+  <div class="panel" id="exportPanel" style="display:none;">
+    <h2><span class="step">5.</span> Export to Blocks</h2>
+    <button class="btn" id="doExport">Build import text</button>
+    <span class="count">Paste this into the Blocks tool's Import tab.</span>
+    <textarea id="exportOut" rows="8" style="margin-top:12px;" placeholder="Import text appears here."></textarea>
+    <div class="acts" style="display:flex; gap:8px; margin-top:10px;">
+      <button class="btn" id="doCopy">Copy</button>
+      <button class="btn" id="doDownload">Download .txt</button>
+    </div>
+    <div class="msg" id="exportMsg"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+let atoms = []; // {title, body, flags:[]}
+
+// ---------- self-contained .docx reader (no library, works offline) ----------
+// A .docx is a ZIP. We read its central directory, pull word/document.xml,
+// inflate it with the browser's built-in DecompressionStream, and strip the XML.
+async function docxToText(arrayBuffer){
+  const bytes = new Uint8Array(arrayBuffer);
+  const dv = new DataView(arrayBuffer);
+  let eocd = -1;
+  for(let i = bytes.length - 22; i >= 0; i--){ if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; } }
+  if(eocd < 0) throw new Error('not a zip');
+  const cdOffset = dv.getUint32(eocd + 16, true);
+  const cdCount = dv.getUint16(eocd + 10, true);
+  let p = cdOffset, target = null;
+  for(let n = 0; n < cdCount; n++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true);
+    const compSize = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extraLen = dv.getUint16(p + 30, true);
+    const commentLen = dv.getUint16(p + 32, true);
+    const localOffset = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(bytes.subarray(p + 46, p + 46 + nameLen));
+    if(name === 'word/document.xml'){ target = { method, compSize, localOffset }; }
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  if(!target) throw new Error('no document.xml');
+  const lo = target.localOffset;
+  const dataStart = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true);
+  const comp = bytes.subarray(dataStart, dataStart + target.compSize);
+  let xmlBytes;
+  if(target.method === 0){ xmlBytes = comp; }
+  else {
+    const ds = new DecompressionStream('deflate-raw');
+    const out = new Response(comp).body.pipeThrough(ds);
+    xmlBytes = new Uint8Array(await new Response(out).arrayBuffer());
+  }
+  return xmlToText(new TextDecoder().decode(xmlBytes));
+}
+function xmlToText(xml){
+  return xml
+    .replace(/<w:tab[^>]*\/?>/g, '\t')
+    .replace(/<\/w:p>/g, '\n')
+    .replace(/<w:br[^>]*\/?>/g, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+// ---------- markdown-safe marker toggle ----------
+$('mdSafe').addEventListener('change', e => {
+  $('marker').value = e.target.checked ? '@@' : '#';
+});
+
+// ---------- file loading ----------
+const drop = $('drop'), fileInput = $('file');
+drop.addEventListener('click', () => fileInput.click());
+['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if(f) loadFile(f); });
+fileInput.addEventListener('change', ev => { const f = ev.target.files[0]; if(f) loadFile(f); });
+
+function loadFile(f){
+  const name = f.name.toLowerCase();
+  $('loadMsg').textContent = 'Loading ' + f.name + '…';
+  if(name.endsWith('.md') || name.endsWith('.markdown')){ $('mdSafe').checked = true; $('marker').value = '@@'; }
+  if(name.endsWith('.docx')){
+    const reader = new FileReader();
+    reader.onload = e => {
+      docxToText(e.target.result)
+        .then(text => { $('srcText').value = text; $('loadMsg').textContent = 'Loaded ' + f.name + '. Nothing was uploaded.'; })
+        .catch(() => { $('loadMsg').textContent = 'Could not read that .docx. Save it as .txt or paste the text instead.'; });
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => { $('srcText').value = e.target.result; $('loadMsg').textContent = 'Loaded ' + f.name + '. Nothing was uploaded.'; };
+    reader.readAsText(f);
+  }
+}
+
+// ---------- tidy ----------
+function tidy(s){
+  let t = s;
+  if($('tidyDash').checked){ t = t.replace(/\s*[—–]\s*/g, ', ').replace(/,\s*,/g, ','); }
+  if($('tidyBullet').checked){ t = t.replace(/^\s*[-*•]\s+/gm, ''); }
+  if($('tidyWs').checked){ t = t.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n'); }
+  return t.trim();
+}
+
+// ---------- break into atoms by marker ----------
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function titleFrom(line, marker){
+  let t = line.trim();
+  if(marker === '#') return t.replace(/^#+\s*/, '').trim();
+  if(t.startsWith(marker)) return t.slice(marker.length).trim();
+  return t;
+}
+
+function breakByMarker(raw, marker){
+  const lines = raw.replace(/\r\n/g, '\n').split('\n');
+  const startsM = l => l.trimStart().startsWith(marker);
+  const lead = []; const marked = []; let cur = null;
+  lines.forEach(line => {
+    if(startsM(line)){ cur = { title: titleFrom(line, marker), body: [] }; marked.push(cur); }
+    else if(cur){ cur.body.push(line); }
+    else { lead.push(line); }
+  });
+  const out = [];
+  const leadText = lead.join('\n').trim();
+  if(leadText) out.push({ title: suggestTitle(leadText), body: leadText });
+  marked.forEach(a => { const b = a.body.join('\n').trim(); out.push({ title: a.title || suggestTitle(b), body: b }); });
+  return out;
+}
+
+function suggestTitle(body){
+  const first = (body.split('\n')[0] || '').replace(/^#{1,6}\s*/, '').trim();
+  const words = first.split(/\s+/).slice(0, 8).join(' ');
+  return words.length > 60 ? words.slice(0, 60) : words;
+}
+
+function atomise(){
+  const raw = $('srcText').value;
+  if(!raw.trim()){ $('loadMsg').textContent = 'Nothing to break up. Paste or drop some text first.'; return; }
+  const marker = ($('marker').value || '#').trim() || '#';
+  let pieces = breakByMarker(raw, marker);
+  pieces = pieces.map(p => ({ title: tidy(p.title), body: tidy(p.body), flags: [] })).filter(p => p.title || p.body);
+  if(!pieces.length){ $('loadMsg').textContent = 'No atoms found. Add marker lines (e.g. "' + marker + ' Title") where each piece should start.'; return; }
+  atoms = pieces;
+  $('atomsPanel').style.display = 'block';
+  $('exportPanel').style.display = 'block';
+  render();
+  $('loadMsg').textContent = 'Broke the text into ' + atoms.length + ' atom' + (atoms.length === 1 ? '' : 's') + ' on "' + marker + '".';
+}
+
+// ---------- render ----------
+function render(){
+  const box = $('atoms'); box.innerHTML = '';
+  $('atomCount').textContent = atoms.length + (atoms.length === 1 ? ' atom' : ' atoms');
+  atoms.forEach((a, i) => {
+    const el = document.createElement('div'); el.className = 'atom';
+    const flagHtml = a.flags.length
+      ? '<div class="flags"><b>Possible identifiers:</b> ' + a.flags.map(f => '<span class="chip" data-add="' + esc(f) + '">' + esc(f) + '</span>').join('') + '</div>'
+      : '';
+    el.innerHTML =
+      '<div class="meta"><input data-i="' + i + '" data-k="title" value="' + esc(a.title) + '" placeholder="Title"></div>' +
+      '<textarea data-i="' + i + '" data-k="body" rows="' + Math.min(10, Math.max(2, a.body.split('\n').length)) + '">' + esc(a.body) + '</textarea>' +
+      flagHtml +
+      '<div class="acts">' +
+        (i > 0 ? '<button class="btn sm" data-act="merge" data-i="' + i + '">▲ Merge up</button>' : '') +
+        '<button class="btn sm" data-act="split" data-i="' + i + '">Split on blank line</button>' +
+        '<button class="btn sm" data-act="del" data-i="' + i + '">Delete</button>' +
+      '</div>';
+    box.appendChild(el);
+  });
+  box.querySelectorAll('input,textarea').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const i = +e.target.dataset.i, k = e.target.dataset.k;
+      atoms[i][k] = e.target.value;
+    });
+  });
+  box.querySelectorAll('button[data-act]').forEach(b => b.addEventListener('click', onAct));
+  box.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => addToStrip(c.dataset.add)));
+}
+
+function onAct(e){
+  const i = +e.target.dataset.i, act = e.target.dataset.act;
+  if(act === 'del'){ atoms.splice(i, 1); }
+  else if(act === 'merge'){ atoms[i-1].body = atoms[i-1].body + '\n\n' + atoms[i].body; atoms.splice(i, 1); }
+  else if(act === 'split'){
+    const parts = atoms[i].body.split(/\n\s*\n/);
+    if(parts.length > 1){
+      const made = parts.map(p => ({ title: suggestTitle(p.trim()), body: p.trim(), flags: [] }));
+      atoms.splice(i, 1, ...made);
+    } else { $('exportMsg').textContent = 'Nothing to split: add a blank line where you want the break.'; }
+  }
+  render();
+}
+
+// ---------- strip / scan ----------
+function parseStrip(){
+  return $('stripList').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.split('=>');
+    return { term: m[0].trim(), ph: m[1] ? '{{' + m[1].trim().replace(/[^a-z0-9_]/gi, '_').toLowerCase() + '}}' : '[redacted]' };
+  }).filter(x => x.term);
+}
+function applyStrip(){
+  if(!atoms.length){ $('exportMsg').textContent = 'Break the text into atoms first.'; return; }
+  const rules = parseStrip();
+  if(!rules.length){ $('exportMsg').textContent = 'Add at least one term to the strip list first.'; return; }
+  let n = 0;
+  atoms.forEach(a => {
+    rules.forEach(r => {
+      const re = new RegExp(escRe(r.term), 'gi');
+      a.body = a.body.replace(re, () => { n++; return r.ph; });
+      a.title = a.title.replace(re, r.ph);
+    });
+  });
+  render();
+  $('exportMsg').textContent = 'Stripped ' + n + ' occurrence' + (n === 1 ? '' : 's') + '.';
+}
+
+function scan(){
+  if(!atoms.length){ $('exportMsg').textContent = 'Break the text into atoms first.'; return; }
+  const postcode = /\b[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}\b/g;
+  const measure = /\b\d+(?:\.\d+)?\s?(?:mm|cm|m|km|kg|t|mph|%|metres?|meters?|km\/h)\b/gi;
+  const proper = /\b([A-Z][a-z]+(?:\s+(?:of|the|and|de|van|von)\s+)?(?:\s+[A-Z][a-z]+)+)\b/g;
+  let total = 0;
+  atoms.forEach(a => {
+    const set = new Set();
+    const text = a.body;
+    (text.match(postcode) || []).forEach(m => set.add(m.trim()));
+    (text.match(measure) || []).forEach(m => set.add(m.trim()));
+    let m;
+    while((m = proper.exec(text)) !== null){ if(m[1].split(/\s+/).length >= 2) set.add(m[1].trim()); }
+    a.flags = [...set].slice(0, 12);
+    total += a.flags.length;
+  });
+  render();
+  $('exportMsg').textContent = total ? 'Flagged ' + total + ' possible identifier' + (total === 1 ? '' : 's') + '. Click a chip to add it to the strip list.' : 'No obvious identifiers found. Read it yourself to be sure.';
+}
+
+function addToStrip(term){
+  const ta = $('stripList');
+  const lines = ta.value.split('\n').map(l => l.trim());
+  if(lines.some(l => l.split('=>')[0].trim().toLowerCase() === term.toLowerCase())) return;
+  ta.value = (ta.value.trim() ? ta.value.trim() + '\n' : '') + term + ' => ';
+  ta.focus();
+}
+
+// ---------- export ----------
+function buildExport(){
+  if(!atoms.length){ $('exportMsg').textContent = 'Break the text into atoms first.'; return; }
+  const cat = $('dCat').value.trim() || 'Generic';
+  const elem = $('dElem').value.trim();
+  const kept = atoms.filter(a => a.title.trim() || a.body.trim());
+  const out = kept.map((a, i) => {
+    let h = 'Category: ' + cat + '\n';
+    if(elem) h += 'Element: ' + elem + '\n';
+    h += 'Order: ' + (i + 1) + '\n';
+    h += 'Title: ' + (a.title.trim() || ('Atom ' + (i + 1))) + '\n';
+    return h + '---\n' + a.body.trim();
+  }).join('\n===\n');
+  $('exportOut').value = out;
+  $('exportMsg').textContent = 'Built ' + kept.length + ' block' + (kept.length === 1 ? '' : 's') + '. Paste into the Import tab: they land as draft.';
+}
+function copyOut(){
+  if(!$('exportOut').value) buildExport();
+  if(!$('exportOut').value) return;
+  navigator.clipboard.writeText($('exportOut').value).then(() => { $('exportMsg').textContent = 'Copied. Paste into the Blocks Import tab.'; });
+}
+function downloadOut(){
+  if(!$('exportOut').value) buildExport();
+  if(!$('exportOut').value) return;
+  const blob = new Blob([$('exportOut').value], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'atoms-import.txt'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+// ---------- local Ollama assist (optional, offline) ----------
+const OLLAMA = { url: 'http://localhost:11434', model: null };
+
+async function ollamaPing(){
+  $('aiStatus').textContent = 'Checking for local Ollama…';
+  try {
+    const r = await fetch(OLLAMA.url + '/api/tags');
+    if(!r.ok) throw new Error('bad');
+    const d = await r.json();
+    const models = (d.models || []).map(m => m.name);
+    if(!models.length) throw new Error('no models');
+    const sel = $('aiModel');
+    sel.innerHTML = models.map(m => '<option value="' + esc(m) + '">' + esc(m) + '</option>').join('');
+    OLLAMA.model = models[0];
+    sel.style.display = 'inline-block';
+    $('aiStatus').innerHTML = '<span style="color:var(--good)">Ollama connected.</span> Model:';
+    $('aiBreak').style.display = 'inline-block';
+    $('aiIdent').style.display = 'inline-block';
+  } catch(e){
+    $('aiModel').style.display = 'none';
+    $('aiBreak').style.display = 'none';
+    $('aiIdent').style.display = 'none';
+    $('aiStatus').innerHTML = 'Ollama not detected. The tool works fully without it. To enable the AI buttons, start Ollama and allow this page (see the note we saved), then Reconnect.';
+  }
+}
+
+async function ollamaGen(prompt){
+  const r = await fetch(OLLAMA.url + '/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: OLLAMA.model, prompt: prompt, stream: false })
+  });
+  if(!r.ok) throw new Error('Ollama request failed');
+  const d = await r.json();
+  return (d.response || '').trim();
+}
+
+function aiBusy(id, on, label){
+  const b = $(id); b.disabled = on; b.textContent = on ? 'Thinking…' : label;
+}
+
+async function aiBreak(){
+  const src = $('srcText').value.trim();
+  if(!src){ $('loadMsg').textContent = 'Paste or drop some text first.'; return; }
+  aiBusy('aiBreak', true, 'Suggest breaks with Ollama');
+  const prompt = 'You split documents into atomic notes: each note is one self-contained idea that can be reused on its own. '
+    + 'Rewrite the document below as a list of notes. Start every note with a line "@@ " followed by a short title (max 8 words). '
+    + 'Put the note text on the lines under it. Keep the original wording where you can. Use British English. Do not add any commentary before or after. '
+    + 'Document:\n\n"""\n' + src + '\n"""';
+  try {
+    const out = await ollamaGen(prompt);
+    if(!out){ throw new Error('empty'); }
+    $('srcText').value = out;
+    $('marker').value = '@@'; $('mdSafe').checked = true;
+    atomise();
+    $('loadMsg').textContent = 'Ollama suggested the breaks. Read and edit the atoms below before export.';
+  } catch(e){
+    $('loadMsg').textContent = 'Could not reach Ollama. Check it is running, then Reconnect.';
+  }
+  aiBusy('aiBreak', false, 'Suggest breaks with Ollama');
+}
+
+async function aiIdent(){
+  const text = atoms.length ? atoms.map(a => a.body).join('\n\n') : $('srcText').value;
+  if(!text.trim()){ $('exportMsg').textContent = 'Add some text or break it into atoms first.'; return; }
+  aiBusy('aiIdent', true, 'Suggest identifiers with Ollama');
+  const prompt = 'You protect confidentiality. List every detail in the text below that could identify a specific client, site, organisation, person, address, job code, or project. '
+    + 'Output one item per line, the exact term as it appears, and nothing else. No numbering, no commentary. If there are none, output the single word NONE. '
+    + 'Text:\n\n"""\n' + text + '\n"""';
+  try {
+    const out = await ollamaGen(prompt);
+    const items = out.split('\n').map(s => s.replace(/^[-*\d.\)\s]+/, '').trim()).filter(s => s && s.toUpperCase() !== 'NONE');
+    if(!items.length){ $('exportMsg').textContent = 'Ollama found no obvious identifiers. Still read it yourself.'; aiBusy('aiIdent', false, 'Suggest identifiers with Ollama'); return; }
+    const ta = $('stripList');
+    const existing = ta.value.split('\n').map(l => l.split('=>')[0].trim().toLowerCase());
+    let added = 0;
+    items.forEach(term => {
+      if(existing.includes(term.toLowerCase())) return;
+      ta.value = (ta.value.trim() ? ta.value.trim() + '\n' : '') + term + ' => ';
+      existing.push(term.toLowerCase()); added++;
+    });
+    $('exportMsg').textContent = 'Ollama suggested ' + added + ' identifier' + (added === 1 ? '' : 's') + '. Fill in a placeholder after each =>, then Apply strip list. Check them first.';
+  } catch(e){
+    $('exportMsg').textContent = 'Could not reach Ollama. Check it is running, then Reconnect.';
+  }
+  aiBusy('aiIdent', false, 'Suggest identifiers with Ollama');
+}
+
+// ---------- wire up ----------
+$('doAtomise').addEventListener('click', atomise);
+$('doStrip').addEventListener('click', applyStrip);
+$('doScan').addEventListener('click', scan);
+$('doExport').addEventListener('click', buildExport);
+$('doCopy').addEventListener('click', copyOut);
+$('doDownload').addEventListener('click', downloadOut);
+$('aiModel').addEventListener('change', e => { OLLAMA.model = e.target.value; });
+$('aiReconnect').addEventListener('click', ollamaPing);
+$('aiBreak').addEventListener('click', aiBreak);
+$('aiIdent').addEventListener('click', aiIdent);
+ollamaPing();
+</script>
+</body>
+</html>
