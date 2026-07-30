@@ -453,10 +453,8 @@
     </a>
     <nav class="menu">
       <a href="#home" data-nav="home">Home</a>
-      <a href="#thread-model" data-nav="thread-model">The Model</a>
       <a href="#writing" data-nav="writing">Writing</a>
       <a href="#resources" data-nav="resources">Resources</a>
-      <a href="#blog" data-nav="blog">Blog</a>
       <a href="#about" data-nav="about">About</a>
       <a href="#contact" data-nav="contact">Contact</a>
       <a href="/tools/">Tools</a>
@@ -903,7 +901,7 @@
           <p class="body">IFSEC recognised me as one of the world&rsquo;s most influential security executives. The full record lives on <a href="https://www.linkedin.com/in/adriaanbosch/" target="_blank" rel="noopener">LinkedIn</a>. This page is the person.</p>
           <p class="body">Everything I have experienced has led me to one conviction.</p>
           <p class="pull-line">The security industry does not have a technology problem. It has a decision-making problem.</p>
-          <p class="body">That is what I write about.</p>
+          <p class="body">That is what I write about. The more personal side of that thinking, less technical, lives on <a href="#blog">the blog</a>.</p>
         </div>
         <div>
           <div class="principle" style="margin-top:0;">
@@ -1705,8 +1703,12 @@
     navLinks.forEach(a => {
       const key = a.getAttribute('data-nav');
       const isArticle = hash.startsWith('article-');
-      const isBlogPost = hash.startsWith('blog-');
-      a.classList.toggle('active', key === hash || (isArticle && key === 'writing') || (isBlogPost && key === 'blog'));
+      const isModel = hash === 'thread-model';
+      const isBlog = hash === 'blog' || hash.startsWith('blog-');
+      a.classList.toggle('active', key === hash
+        || (isArticle && key === 'writing')
+        || (isModel && key === 'writing')
+        || (isBlog && key === 'about'));
     });
     window.scrollTo(0, 0);
   }
