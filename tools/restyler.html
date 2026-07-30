@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Restyler · Adriaan Bosch</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#faf8f4; --ink:#1c1b18; --ink-soft:#55534d; --line:#e3ded4;
+    --accent:#8a6a33; --accent-soft:#f2ecdf; --night:#1C1F23; --night-ink:#f0ece4; --gold:#C8A15A;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--paper); color:var(--ink); font-family:'Source Sans 3',sans-serif; font-size:16px; line-height:1.6; }
+  .wrap { max-width:960px; margin:0 auto; padding:0 24px 80px; }
+  header { padding:56px 0 30px; }
+  .kicker { font-size:.72rem; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); font-weight:600; margin-bottom:14px; }
+  .kicker::before { content:""; display:inline-block; width:34px; height:1px; background:linear-gradient(to right,var(--gold),transparent); margin-right:10px; vertical-align:middle; }
+  h1 { font-family:'Fraunces',serif; font-weight:400; font-size:2.2rem; }
+  .sub { color:var(--ink-soft); margin-top:10px; max-width:60ch; }
+  .privacy { margin-top:14px; font-size:.85rem; color:var(--accent); }
+  h2 { font-family:'Fraunces',serif; font-weight:400; font-size:1.35rem; margin-bottom:12px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-top:26px; }
+  @media (max-width:760px){ .grid{ grid-template-columns:1fr; } }
+  .panel { border:1px solid var(--line); background:#fff; border-radius:3px; padding:24px; }
+  .drop { border:1.5px dashed var(--line); border-radius:3px; padding:34px 18px; text-align:center; color:var(--ink-soft); cursor:pointer; transition:all .15s; font-size:.95rem; }
+  .drop:hover, .drop.over { border-color:var(--gold); background:var(--accent-soft); }
+  .drop.loaded { border-style:solid; border-color:var(--accent); color:var(--ink); background:var(--accent-soft); }
+  .btn { display:inline-block; cursor:pointer; font-size:.8rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; padding:13px 26px; border-radius:2px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); margin-top:18px; }
+  .btn:hover { background:var(--accent); border-color:var(--accent); }
+  .btn[disabled] { opacity:.4; cursor:not-allowed; }
+  .btn.ghost { background:transparent; color:var(--ink); }
+  .swatches { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 16px; }
+  .swatch { width:44px; height:44px; border-radius:3px; border:1px solid var(--line); position:relative; }
+  .swatch span { position:absolute; bottom:-18px; left:0; font-size:.6rem; color:var(--ink-soft); white-space:nowrap; }
+  table { width:100%; border-collapse:collapse; font-size:.85rem; margin:8px 0 4px; }
+  th,td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+  .opt { display:flex; gap:10px; align-items:flex-start; margin-top:12px; font-size:.9rem; color:var(--ink-soft); }
+  .opt input { margin-top:4px; accent-color:var(--accent); }
+  .status { margin-top:16px; padding:14px 16px; border-left:2px solid var(--gold); background:var(--accent-soft); font-size:.9rem; display:none; }
+  .footer-note { margin-top:44px; font-size:.8rem; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:18px; }
+  #report { display:none; margin-top:26px; }
+  .fontline { font-size:.95rem; margin-bottom:6px; }
+  .fontline b { font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Field tool · Private</div>
+    <h1>Document Restyler</h1>
+    <p class="sub">Read the formatting DNA of a client document, then dress your own document in it: styles, theme, fonts and colours, content untouched.</p>
+    <p class="privacy">Everything runs inside this browser tab. No file is uploaded anywhere.</p>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>1 · The client's clothes</h2>
+      <div class="drop" id="dropA">Drop the client document or template here<br>(.docx or .dotx)</div>
+      <button class="btn ghost" id="analyseBtn" disabled>Analyse formatting</button>
+      <div id="report"></div>
+    </div>
+    <div class="panel">
+      <h2>2 · Your document</h2>
+      <div class="drop" id="dropB">Drop the document to convert here<br>(.docx)</div>
+      <div class="opt"><input type="checkbox" id="stripFonts" checked><label for="stripFonts">Strip direct fonts and colours from the text, so the client's styles win (recommended)</label></div>
+      <div class="opt"><input type="checkbox" id="stripSizes"><label for="stripSizes">Also strip direct font sizes (use if the result keeps odd sizes)</label></div>
+      <div class="opt" style="font-size:.82rem;">Lists keep your document's own numbering layout (bullets and indents), dressed in the client's fonts and colours. That keeps the file valid for Word.</div>
+      <button class="btn" id="convertBtn" disabled>Convert</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:26px;">
+    <h2>3 · Markdown to Word</h2>
+    <p style="font-size:.9rem; color:var(--ink-soft); margin-bottom:12px;">Paste markdown or drop a .md file. If a client document is loaded in panel 1, the result wears their styles; otherwise it comes out clean and neutral.</p>
+    <div class="drop" id="dropMd" style="padding:20px;">Drop a .md file here, or just paste below</div>
+    <textarea id="mdInput" placeholder="# Heading&#10;&#10;Body text with **bold** and *italic*...&#10;&#10;- a list item" style="width:100%; min-height:180px; margin-top:14px; padding:14px; font-family:ui-monospace,Menlo,monospace; font-size:.85rem; border:1px solid var(--line); border-radius:3px; background:#fff; color:var(--ink); resize:vertical;"></textarea>
+    <button class="btn" id="mdBtn">Create .docx</button>
+    <div class="status" id="mdStatus"></div>
+  </div>
+
+  <p class="footer-note">What this converts well: fonts, colours, theme, paragraph and heading styles, document defaults, markdown structure (headings, lists, tables, quotes, bold, italic, links). What still needs a human: cover pages, headers and footers, complex tables and section layouts. Check the result in Word before it goes anywhere. · adriaanbosch.net</p>
+</div>
+
+<script>
+let zipA = null, zipB = null, nameB = "document";
+
+function wireDrop(el, cb){
+  el.addEventListener('click', () => {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = '.docx,.dotx';
+    inp.onchange = e => { if (e.target.files[0]) cb(e.target.files[0], el); };
+    inp.click();
+  });
+  ['dragover','dragenter'].forEach(ev => el.addEventListener(ev, e => { e.preventDefault(); el.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => el.addEventListener(ev, e => { e.preventDefault(); el.classList.remove('over'); }));
+  el.addEventListener('drop', e => { if (e.dataTransfer.files[0]) cb(e.dataTransfer.files[0], el); });
+}
+
+async function loadZip(file){
+  const buf = await file.arrayBuffer();
+  return await JSZip.loadAsync(buf);
+}
+
+wireDrop(document.getElementById('dropA'), async (file, el) => {
+  zipA = await loadZip(file);
+  el.textContent = "Loaded: " + file.name;
+  el.classList.add('loaded');
+  document.getElementById('analyseBtn').disabled = false;
+  updateConvert();
+});
+wireDrop(document.getElementById('dropB'), async (file, el) => {
+  zipB = await loadZip(file);
+  nameB = file.name.replace(/\.docx$/i, "");
+  el.textContent = "Loaded: " + file.name;
+  el.classList.add('loaded');
+  updateConvert();
+});
+function updateConvert(){
+  document.getElementById('convertBtn').disabled = !(zipA && zipB);
+}
+
+// ---------- Analyse ----------
+const XP = new DOMParser();
+async function getXml(zip, path){
+  const f = zip.file(path);
+  if (!f) return null;
+  return XP.parseFromString(await f.async("string"), "application/xml");
+}
+function q(node, sel){ return node ? node.querySelector(sel) : null; }
+
+document.getElementById('analyseBtn').addEventListener('click', async () => {
+  const report = document.getElementById('report');
+  report.style.display = 'block';
+  report.innerHTML = "";
+  const styles = await getXml(zipA, "word/styles.xml");
+  const theme = await getXml(zipA, "word/theme/theme1.xml");
+  const docxml = await getXml(zipA, "word/document.xml");
+  let html = "";
+
+  // theme fonts
+  if (theme){
+    const major = theme.getElementsByTagName("a:majorFont")[0];
+    const minor = theme.getElementsByTagName("a:minorFont")[0];
+    const mf = major ? major.getElementsByTagName("a:latin")[0] : null;
+    const nf = minor ? minor.getElementsByTagName("a:latin")[0] : null;
+    html += `<div class="fontline"><b>Heading font:</b> ${mf ? mf.getAttribute("typeface") || "(theme default)" : "?"}</div>`;
+    html += `<div class="fontline"><b>Body font:</b> ${nf ? nf.getAttribute("typeface") || "(theme default)" : "?"}</div>`;
+    // colours
+    const scheme = theme.getElementsByTagName("a:clrScheme")[0];
+    if (scheme){
+      html += `<div class="fontline" style="margin-top:12px;"><b>Colour palette</b></div><div class="swatches">`;
+      for (const child of scheme.children){
+        const tag = child.tagName.replace("a:","");
+        let hex = null;
+        const s = child.getElementsByTagName("a:srgbClr")[0];
+        const sys = child.getElementsByTagName("a:sysClr")[0];
+        if (s) hex = s.getAttribute("val");
+        else if (sys) hex = sys.getAttribute("lastClr");
+        if (hex) html += `<div class="swatch" style="background:#${hex}" title="#${hex}"><span>${tag}</span></div>`;
+      }
+      html += `</div><div style="height:16px"></div>`;
+    }
+  }
+
+  // key styles
+  if (styles){
+    const want = ["Title","Heading1","Heading2","Heading3","Heading4","Normal"];
+    let rows = "";
+    for (const s of styles.getElementsByTagName("w:style")){
+      const id = s.getAttribute("w:styleId");
+      if (!want.includes(id)) continue;
+      const rPr = s.getElementsByTagName("w:rPr")[0];
+      let font = "theme", size = "", colour = "", bold = "";
+      if (rPr){
+        const rf = rPr.getElementsByTagName("w:rFonts")[0];
+        if (rf) font = rf.getAttribute("w:ascii") || rf.getAttribute("w:asciiTheme") || "theme";
+        const sz = rPr.getElementsByTagName("w:sz")[0];
+        if (sz) size = (parseInt(sz.getAttribute("w:val"))/2) + "pt";
+        const c = rPr.getElementsByTagName("w:color")[0];
+        if (c && c.getAttribute("w:val") !== "auto") colour = "#" + c.getAttribute("w:val");
+        bold = rPr.getElementsByTagName("w:b").length ? "bold" : "";
+      }
+      rows += `<tr><td>${id}</td><td>${font}</td><td>${size}</td><td>${colour ? `<span style="display:inline-block;width:10px;height:10px;background:${colour};border:1px solid var(--line);margin-right:4px;"></span>${colour}` : ""}</td><td>${bold}</td></tr>`;
+    }
+    if (rows) html += `<table><tr><th>Style</th><th>Font</th><th>Size</th><th>Colour</th><th></th></tr>${rows}</table>`;
+    // defaults
+    const dd = styles.getElementsByTagName("w:docDefaults")[0];
+    if (dd){
+      const rf = dd.getElementsByTagName("w:rFonts")[0];
+      const sz = dd.getElementsByTagName("w:sz")[0];
+      html += `<div class="fontline" style="margin-top:10px;"><b>Default run:</b> ${rf ? (rf.getAttribute("w:ascii") || rf.getAttribute("w:asciiTheme") || "theme") : "theme"}${sz ? ", " + parseInt(sz.getAttribute("w:val"))/2 + "pt" : ""}</div>`;
+    }
+  }
+
+  // margins
+  if (docxml){
+    const m = docxml.getElementsByTagName("w:pgMar")[0];
+    if (m){
+      const cm = v => (parseInt(v)/567).toFixed(1);
+      html += `<div class="fontline"><b>Margins:</b> top ${cm(m.getAttribute("w:top"))}cm · bottom ${cm(m.getAttribute("w:bottom"))}cm · left ${cm(m.getAttribute("w:left"))}cm · right ${cm(m.getAttribute("w:right"))}cm</div>`;
+    }
+  }
+  report.innerHTML = html || "Could not read formatting from this file.";
+});
+
+// ---------- Convert ----------
+document.getElementById('convertBtn').addEventListener('click', async () => {
+  const status = document.getElementById('status');
+  status.style.display = 'block';
+  status.textContent = "Converting...";
+  try {
+    const out = zipB;
+    // Merge the client's clothes across, keeping every reference valid:
+    // - styles: client's styles win, but any style the source document uses
+    //   that the client lacks is kept (no dangling pStyle references)
+    // - style-linked numbering references are stripped from client styles
+    //   (their numbering.xml is not carried, so those would dangle)
+    // - the source document's own numbering.xml stays untouched
+    const srcStylesFile = out.file("word/styles.xml");
+    const tplStylesFile = zipA.file("word/styles.xml");
+    if (tplStylesFile){
+      let tpl = await tplStylesFile.async("string");
+      // strip style-linked numbering from the client's styles
+      tpl = tpl.replace(/<w:numPr>[\s\S]*?<\/w:numPr>/g, "");
+      if (srcStylesFile){
+        const src = await srcStylesFile.async("string");
+        const idsIn = s => new Set([...s.matchAll(/w:styleId="([^"]+)"/g)].map(m => m[1]));
+        const tplIds = idsIn(tpl);
+        let extras = "";
+        for (const m of src.matchAll(/<w:style [^>]*w:styleId="([^"]+)"[\s\S]*?<\/w:style>/g)){
+          if (!tplIds.has(m[1])) extras += m[0];
+        }
+        if (extras) tpl = tpl.replace(/<\/w:styles>\s*$/, extras + "</w:styles>");
+      }
+      out.file("word/styles.xml", tpl);
+    }
+    for (const path of ["word/theme/theme1.xml", "word/fontTable.xml"]){
+      const src = zipA.file(path);
+      if (src) out.file(path, await src.async("string"));
+    }
+        // strip direct formatting so the template's styles govern
+    let doc = await out.file("word/document.xml").async("string");
+    if (document.getElementById('stripFonts').checked){
+      doc = doc.replace(/<w:rFonts\b[^>]*\/>/g, "");
+      doc = doc.replace(/<w:color\b[^>]*\/>/g, "");
+    }
+    if (document.getElementById('stripSizes').checked){
+      doc = doc.replace(/<w:sz\b[^>]*\/>/g, "");
+      doc = doc.replace(/<w:szCs\b[^>]*\/>/g, "");
+    }
+    out.file("word/document.xml", doc);
+
+    const blob = await out.generateAsync({ type:"blob", mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = nameB + " (restyled).docx";
+    a.click();
+    status.textContent = "Done. The restyled document has downloaded. Open it in Word and check headings, lists and tables before use.";
+  } catch (err){
+    status.textContent = "Something went wrong: " + err.message + ". The messy cases are agent work; bring both files to a session.";
+  }
+});
+
+// ---------- Markdown to Word ----------
+wireDrop(document.getElementById('dropMd'), async (file, el) => {
+  document.getElementById('mdInput').value = await file.text();
+  el.textContent = "Loaded: " + file.name;
+  el.classList.add('loaded');
+});
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+const mdLinks = [];
+function runsFromInline(text){
+  // tokenise: links, bold, italic, code
+  let out = "";
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+  for (const p of parts){
+    if (!p) continue;
+    let m;
+    if ((m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/))){
+      const rid = "rIdMD" + (mdLinks.length + 1);
+      mdLinks.push({ id: rid, url: m[2] });
+      out += `<w:hyperlink r:id="${rid}"><w:r><w:rPr><w:color w:val="8a6a33"/><w:u w:val="single"/></w:rPr><w:t xml:space="preserve">${esc(m[1])}</w:t></w:r></w:hyperlink>`;
+    } else if ((m = p.match(/^\*\*([^*]+)\*\*$/))){
+      out += `<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">${esc(m[1])}</w:t></w:r>`;
+    } else if ((m = p.match(/^\*([^*]+)\*$/))){
+      out += `<w:r><w:rPr><w:i/></w:rPr><w:t xml:space="preserve">${esc(m[1])}</w:t></w:r>`;
+    } else if ((m = p.match(/^`([^`]+)`$/))){
+      out += `<w:r><w:rPr><w:rFonts w:ascii="Consolas" w:hAnsi="Consolas"/></w:rPr><w:t xml:space="preserve">${esc(m[1])}</w:t></w:r>`;
+    } else {
+      out += `<w:r><w:t xml:space="preserve">${esc(p)}</w:t></w:r>`;
+    }
+  }
+  return out;
+}
+
+function para(style, inner, numId, ilvl){
+  let pPr = "";
+  if (style || numId){
+    pPr = "<w:pPr>";
+    if (style) pPr += `<w:pStyle w:val="${style}"/>`;
+    if (numId) pPr += `<w:numPr><w:ilvl w:val="${ilvl||0}"/><w:numId w:val="${numId}"/></w:numPr>`;
+    pPr += "</w:pPr>";
+  }
+  return `<w:p>${pPr}${inner}</w:p>`;
+}
+
+function mdToBody(md){
+  const lines = md.replace(/\r/g,"").split("\n");
+  let body = "", i = 0;
+  while (i < lines.length){
+    const line = lines[i];
+    if (/^\s*$/.test(line)){ i++; continue; }
+    let m;
+    if ((m = line.match(/^(#{1,4})\s+(.*)$/))){
+      body += para("Heading" + m[1].length, runsFromInline(m[2])); i++; continue;
+    }
+    if ((m = line.match(/^>\s?(.*)$/))){
+      let quote = m[1];
+      while (i+1 < lines.length && /^>\s?/.test(lines[i+1])){ i++; quote += " " + lines[i].replace(/^>\s?/,""); }
+      body += para("Quote", runsFromInline(quote)); i++; continue;
+    }
+    if (/^\s*([-*]|\d+[.)])\s+/.test(line)){
+      while (i < lines.length && /^\s*([-*]|\d+[.)])\s+/.test(lines[i])){
+        const l = lines[i];
+        const indent = (l.match(/^(\s*)/)[1].length >= 2) ? 1 : 0;
+        const ordered = /^\s*\d+[.)]\s+/.test(l);
+        const text = l.replace(/^\s*([-*]|\d+[.)])\s+/, "");
+        body += para("ListParagraph", runsFromInline(text), ordered ? 902 : 901, indent);
+        i++;
+      }
+      continue;
+    }
+    if (/^\|.*\|\s*$/.test(line)){
+      const rows = [];
+      while (i < lines.length && /^\|.*\|\s*$/.test(lines[i])){
+        const cells = lines[i].replace(/^\||\|\s*$/g,"").split("|").map(c => c.trim());
+        if (!cells.every(c => /^:?-{3,}:?$/.test(c))) rows.push(cells);
+        i++;
+      }
+      const cols = Math.max(...rows.map(r => r.length));
+      let tbl = `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="C8C4BA"/><w:left w:val="single" w:sz="4" w:color="C8C4BA"/><w:bottom w:val="single" w:sz="4" w:color="C8C4BA"/><w:right w:val="single" w:sz="4" w:color="C8C4BA"/><w:insideH w:val="single" w:sz="4" w:color="C8C4BA"/><w:insideV w:val="single" w:sz="4" w:color="C8C4BA"/></w:tblBorders></w:tblPr>`;
+      rows.forEach((r, ri) => {
+        tbl += "<w:tr>";
+        for (let c = 0; c < cols; c++){
+          const cell = r[c] || "";
+          const runs = ri === 0 ? `<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">${esc(cell)}</w:t></w:r>` : runsFromInline(cell);
+          tbl += `<w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/></w:tcPr><w:p>${runs}</w:p></w:tc>`;
+        }
+        tbl += "</w:tr>";
+      });
+      tbl += "</w:tbl><w:p/>";
+      body += tbl; continue;
+    }
+    // plain paragraph (gather soft-wrapped lines)
+    let text = line;
+    while (i+1 < lines.length && lines[i+1].trim() !== "" && !/^(#{1,4}\s|>|\s*([-*]|\d+[.)])\s|\|)/.test(lines[i+1])){
+      i++; text += " " + lines[i].trim();
+    }
+    body += para(null, runsFromInline(text)); i++;
+  }
+  return body;
+}
+
+const DEFAULT_STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
+<w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
+<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="320" w:after="120"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="240" w:after="100"/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:sz w:val="27"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="2"/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading4"><w:name w:val="heading 4"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="160" w:after="60"/><w:outlineLvl w:val="3"/></w:pPr><w:rPr><w:b/><w:i/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720"/><w:contextualSpacing/></w:pPr></w:style>
+<w:style w:type="paragraph" w:styleId="Quote"><w:name w:val="Quote"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="567"/></w:pPr><w:rPr><w:i/></w:rPr></w:style>
+</w:styles>`;
+
+const MD_NUMBERING = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:abstractNum w:abstractNumId="900"><w:multiLevelType w:val="hybridMultilevel"/>
+<w:lvl w:ilvl="0"><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/><w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr></w:lvl>
+<w:lvl w:ilvl="1"><w:numFmt w:val="bullet"/><w:lvlText w:val="-"/><w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr></w:lvl></w:abstractNum>
+<w:abstractNum w:abstractNumId="901"><w:multiLevelType w:val="hybridMultilevel"/>
+<w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/><w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr></w:lvl>
+<w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="lowerLetter"/><w:lvlText w:val="%2."/><w:pPr><w:ind w:left="1440" w:hanging="360"/></w:pPr></w:lvl></w:abstractNum>
+<w:num w:numId="901"><w:abstractNumId w:val="900"/></w:num>
+<w:num w:numId="902"><w:abstractNumId w:val="901"/></w:num>
+</w:numbering>`;
+
+document.getElementById('mdBtn').addEventListener('click', async () => {
+  const st = document.getElementById('mdStatus');
+  st.style.display = 'block';
+  const md = document.getElementById('mdInput').value;
+  if (!md.trim()){ st.textContent = "Nothing to convert yet: paste markdown or drop a .md file."; return; }
+  try {
+    mdLinks.length = 0;
+    const body = mdToBody(md);
+    const doc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}<w:sectPr><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>`;
+
+    const zip = new JSZip();
+    // clothes: template's if loaded, defaults otherwise
+    let stylesXml = DEFAULT_STYLES, themeXml = null, fontsXml = null;
+    if (zipA){
+      const s = zipA.file("word/styles.xml");
+      if (s){
+        stylesXml = await s.async("string");
+        // client numbering is not carried, so strip style-linked numbering references
+        stylesXml = stylesXml.replace(/<w:numPr>[\s\S]*?<\/w:numPr>/g, "");
+      }
+      const th = zipA.file("word/theme/theme1.xml"); if (th) themeXml = await th.async("string");
+      const ft = zipA.file("word/fontTable.xml"); if (ft) fontsXml = await ft.async("string");
+    }
+    zip.file("word/styles.xml", stylesXml);
+    zip.file("word/numbering.xml", MD_NUMBERING);
+    if (themeXml) zip.file("word/theme/theme1.xml", themeXml);
+    if (fontsXml) zip.file("word/fontTable.xml", fontsXml);
+    zip.file("word/document.xml", doc);
+
+    let ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>`;
+    if (themeXml) ct += `<Override PartName="/word/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>`;
+    if (fontsXml) ct += `<Override PartName="/word/fontTable.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>`;
+    ct += `</Types>`;
+    zip.file("[Content_Types].xml", ct);
+
+    zip.file("_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+
+    let rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rIdS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+<Relationship Id="rIdN" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>`;
+    if (themeXml) rels += `<Relationship Id="rIdT" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>`;
+    if (fontsXml) rels += `<Relationship Id="rIdF" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" Target="fontTable.xml"/>`;
+    for (const l of mdLinks){
+      rels += `<Relationship Id="${l.id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${l.url.replace(/&/g,"&amp;")}" TargetMode="External"/>`;
+    }
+    rels += `</Relationships>`;
+    zip.file("word/_rels/document.xml.rels", rels);
+
+    const blob = await zip.generateAsync({ type:"blob", mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "markdown (converted).docx";
+    a.click();
+    st.textContent = zipA
+      ? "Done, dressed in the client's styles. Check headings and lists in Word."
+      : "Done, clean neutral document. Load a client file in panel 1 first if you want their styles.";
+  } catch (err){
+    st.textContent = "Something went wrong: " + err.message;
+  }
+});
+</script>
+</body>
+</html>
