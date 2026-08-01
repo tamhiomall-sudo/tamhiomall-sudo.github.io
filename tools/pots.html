@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Savings Pots</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap');
+:root { --bg:#16191d; --card:#1C1F23; --line:#2f333a; --text:#f0ece4; --dim:#9a948a;
+        --accent:#C8A15A; --good:#4ecb8d; --warn:#e6c05a; --bad:#e66a5a; }
+* { box-sizing:border-box; }
+body { background:
+    radial-gradient(1200px 600px at 12% -12%, rgba(200,161,90,.10), transparent 60%),
+    radial-gradient(1000px 520px at 100% 0%, rgba(78,203,141,.05), transparent 55%),
+    var(--bg);
+  color:var(--text); font:15px/1.5 'Source Sans 3',-apple-system,'Segoe UI',Roboto,sans-serif; margin:0; padding:24px; min-height:100vh; }
+
+.acctbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  font-size:12.5px; color:var(--dim); }
+.acctbar .who { color:var(--text); }
+.acctbar a { color:var(--accent); text-decoration:none; }
+.acctbar a:hover { text-decoration:underline; }
+.acctbar .spacer { flex:1; }
+.acctbar button { background:#262a2f; border:1px solid var(--line); color:var(--text);
+  border-radius:8px; padding:6px 12px; font:12px inherit; cursor:pointer; }
+.acctbar button:hover { border-color:var(--accent); color:var(--accent); }
+.syncstatus { font-size:11.5px; color:var(--dim); }
+.syncstatus.good { color:var(--good); }
+.syncstatus.bad { color:var(--bad); }
+
+.hero { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:14px;
+  background:linear-gradient(135deg,#151a23,#0f131b); padding:22px 26px; margin-bottom:18px; }
+.hero-inner { position:relative; z-index:1; }
+.herotop { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:16px; justify-content:space-between; }
+h1 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:28px; margin:0; letter-spacing:-0.01em; }
+.sub { color:var(--dim); font-size:12.5px; }
+.stats { display:flex; gap:12px; flex-wrap:wrap; }
+.stat { background:rgba(255,255,255,.035); border:1px solid var(--line); border-radius:10px;
+  padding:11px 16px; min-width:118px; flex:1 1 118px; }
+.statnum { font-family:'Fraunces',Georgia,serif; font-size:26px; font-weight:600; line-height:1; letter-spacing:-.02em; }
+.statlabel { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-top:7px; }
+.stat.t-bad .statnum { color:var(--bad); } .stat.t-good .statnum { color:var(--good); }
+
+.toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+.toolbar input[type=search] { flex:1; min-width:180px; background:#1e232c; border:1px solid var(--line); color:var(--text);
+  border-radius:8px; padding:9px 12px; font:13.5px inherit; }
+button.primary { background:var(--accent); border:none; color:#1a1208; font-weight:600; border-radius:8px;
+  padding:9px 16px; font:13.5px inherit; cursor:pointer; }
+button.primary:hover { filter:brightness(1.06); }
+button.ghost { background:#262a2f; border:1px solid var(--line); color:var(--text); border-radius:8px;
+  padding:9px 14px; font:13px inherit; cursor:pointer; transition:border-color .15s, color .15s; }
+button.ghost:hover { border-color:var(--accent); color:var(--accent); }
+button.small { padding:4px 10px; font-size:12px; }
+button.link { background:none; border:none; color:var(--dim); cursor:pointer; font-size:12.5px; text-decoration:underline; padding:0; }
+button.link:hover { color:var(--accent); }
+
+h2.section { font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:26px 0 12px; }
+
+.potgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+.potcard { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 17px;
+  cursor:pointer; transition:border-color .15s, transform .12s; }
+.potcard:hover { border-color:var(--accent); transform:translateY(-1px); }
+.potgroup { color:var(--dim); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.potname { font-family:'Fraunces',Georgia,serif; font-size:16.5px; margin-bottom:8px; line-height:1.25; }
+.potbal { font-family:'Fraunces',Georgia,serif; font-size:23px; font-weight:600; }
+.potbal.neg { color:var(--bad); }
+.potmeta { color:var(--dim); font-size:11.5px; margin-top:6px; display:flex; flex-wrap:wrap; gap:8px; }
+.bar { height:6px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; margin:9px 0 2px; }
+.bar > span { display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--good)); border-radius:3px; }
+.potcard .quickspend { margin-top:10px; }
+
+.dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+.d-good { background:var(--good); } .d-warn { background:var(--warn); } .d-bad { background:var(--bad); }
+
+.empty { color:var(--dim); font-size:13.5px; padding:20px 0; }
+
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:flex-start; justify-content:center;
+  padding:40px 16px; overflow:auto; z-index:50; }
+.modal-bg.open { display:flex; }
+.modal { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px; width:100%; max-width:520px; }
+.modal h3 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:20px; margin:0 0 4px; }
+.modal .modalsub { color:var(--dim); font-size:12.5px; margin-bottom:16px; }
+.field { margin-bottom:12px; }
+.field label { display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--dim); margin-bottom:5px; }
+.field input, .field select, .field textarea { width:100%; background:#262a2f; border:1px solid var(--line); color:var(--text);
+  border-radius:6px; padding:8px 10px; font:13.5px inherit; }
+.field textarea { resize:vertical; min-height:50px; }
+.fieldrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.modalbtns { display:flex; justify-content:space-between; align-items:center; margin-top:18px; }
+.segrow { display:flex; gap:8px; margin-bottom:14px; }
+.seg { flex:1; text-align:center; padding:8px; border:1px solid var(--line); border-radius:8px; cursor:pointer;
+  font-size:13px; color:var(--dim); background:#1e232c; }
+.seg.active.spend { border-color:var(--bad); color:var(--bad); background:rgba(230,106,90,.1); }
+.seg.active.add { border-color:var(--good); color:var(--good); background:rgba(78,203,141,.1); }
+
+table { width:100%; border-collapse:collapse; font-size:13px; }
+td, th { text-align:left; padding:6px 4px; vertical-align:top; border-bottom:1px solid var(--line); }
+th { color:var(--dim); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+tr:last-child td { border-bottom:none; }
+.txlist { max-height:280px; overflow-y:auto; margin:4px 0 16px; }
+.amt.neg { color:var(--bad); } .amt.pos { color:var(--good); }
+.txauto { color:var(--dim); font-size:10.5px; }
+
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="acctbar">
+  <span class="who" id="whoami">&nbsp;</span>
+  <span class="syncstatus" id="syncStatus">connecting...</span>
+  <span class="spacer"></span>
+  <a href="./">Your tools</a>
+  <a href="/">Main site</a>
+  <button id="signout">Sign out</button>
+</div>
+
+<div class="hero"><div class="hero-inner">
+  <div class="herotop">
+    <div>
+      <h1>Savings Pots</h1>
+      <div class="sub">What each pot holds, what it costs a month, and where the money actually went.</div>
+    </div>
+  </div>
+  <div class="stats" id="heroStats"></div>
+</div></div>
+
+<div class="toolbar">
+  <input type="search" id="search" placeholder="Search pots...">
+  <button class="ghost" id="exportBtn">Export to Excel</button>
+  <button class="primary" id="addPotBtn">+ Add pot</button>
+</div>
+
+<div id="potGroups"></div>
+
+<!-- Pot detail modal -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal" style="max-width:600px">
+    <h3 id="detailTitle">Pot</h3>
+    <div class="modalsub" id="detailSub"></div>
+
+    <div class="segrow">
+      <div class="seg active spend" id="segSpend" data-type="spend">Spent from this pot</div>
+      <div class="seg add" id="segAdd" data-type="add">Add money to this pot</div>
+    </div>
+    <div class="fieldrow">
+      <div class="field"><label>Date</label><input type="date" id="txDate"></div>
+      <div class="field"><label>Amount (&pound;)</label><input type="number" id="txAmount" step="0.01" min="0" placeholder="0.00"></div>
+    </div>
+    <div class="field"><label>What for</label><input type="text" id="txDesc" placeholder="e.g. clothes, vehicle service"></div>
+    <button class="primary" id="addTxBtn" style="width:100%">Add</button>
+
+    <h2 class="section" style="margin-top:22px">History</h2>
+    <div class="txlist"><table id="txTable"><tbody></tbody></table></div>
+
+    <h2 class="section">Pot settings</h2>
+    <div class="fieldrow">
+      <div class="field"><label>Name</label><input type="text" id="editName"></div>
+      <div class="field"><label>Group</label><input type="text" id="editGroup"></div>
+    </div>
+    <div class="fieldrow">
+      <div class="field"><label>Monthly top-up (&pound;)</label><input type="number" id="editMonthly" step="0.01" min="0"></div>
+      <div class="field"><label>Annual target (&pound;, optional)</label><input type="number" id="editTarget" step="0.01" min="0"></div>
+    </div>
+    <div class="field"><label>Due date (optional)</label><input type="date" id="editDue"></div>
+
+    <div class="modalbtns">
+      <button class="ghost" id="deletePotBtn" style="color:var(--bad);border-color:var(--bad)">Delete pot</button>
+      <div style="display:flex;gap:10px">
+        <button class="ghost" id="closeDetailBtn">Close</button>
+        <button class="primary" id="saveSettingsBtn">Save settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add pot modal -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h3>New pot</h3>
+    <div class="modalsub">Set it up once, top it up every month from here on.</div>
+    <div class="field"><label>Name</label><input type="text" id="newName" placeholder="e.g. Car insurance"></div>
+    <div class="field"><label>Group</label><input type="text" id="newGroup" placeholder="e.g. Motors" list="groupList"></div>
+    <datalist id="groupList"></datalist>
+    <div class="fieldrow">
+      <div class="field"><label>Monthly top-up (&pound;)</label><input type="number" id="newMonthly" step="0.01" min="0" value="0"></div>
+      <div class="field"><label>Annual target (&pound;, optional)</label><input type="number" id="newTarget" step="0.01" min="0"></div>
+    </div>
+    <div class="field"><label>Due date (optional)</label><input type="date" id="newDue"></div>
+    <div class="field"><label>Starting balance (&pound;, optional)</label><input type="number" id="newOpening" step="0.01" value="0"></div>
+    <div class="modalbtns">
+      <div></div>
+      <div style="display:flex;gap:10px">
+        <button class="ghost" id="cancelAddBtn">Cancel</button>
+        <button class="primary" id="saveNewBtn">Create pot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Supabase + auth gate + localStorage->Supabase shim -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  (function(){
+  const C = window.TOOLS_CONFIG;
+  const TOOL = 'savings-pots';
+  const STORE_KEY = 'savingspots_v1';
+  const sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+
+  const statusEl = () => document.getElementById('syncStatus');
+  function setStatus(t, cls){ const e = statusEl(); if (e){ e.textContent = t; e.className = 'syncstatus ' + (cls||''); } }
+
+  let saveTimer = null;
+  function scheduleSave(v){
+    setStatus('saving...');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) { location.replace('./'); return; }
+        const { error } = await sb.from('app_data').upsert(
+          { user_id: session.user.id, tool: TOOL, data: JSON.parse(v) },
+          { onConflict: 'user_id,tool' }
+        );
+        if (error) throw error;
+        setStatus('saved', 'good');
+      } catch (e) { setStatus('not saved - will retry', 'bad'); clearTimeout(saveTimer); saveTimer = setTimeout(() => scheduleSave(v), 5000); }
+    }, 700);
+  }
+
+  async function boot(){
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.replace('./'); return; }
+    document.getElementById('whoami').textContent = session.user.email;
+
+    let initial = null;
+    try {
+      const { data, error } = await sb.from('app_data').select('data').eq('tool', TOOL).maybeSingle();
+      if (error) throw error;
+      initial = data ? data.data : null;
+      setStatus('saved', 'good');
+    } catch (e) { setStatus('offline - not loaded', 'bad'); }
+
+    const realGet = localStorage.getItem.bind(localStorage);
+    const realSet = localStorage.setItem.bind(localStorage);
+    let cache = initial ? JSON.stringify(initial) : null;
+    localStorage.getItem = (k) => (k === STORE_KEY ? cache : realGet(k));
+    localStorage.setItem = (k, v) => { if (k === STORE_KEY) { cache = v; scheduleSave(v); } else realSet(k, v); };
+
+    const s = document.createElement('script');
+    s.src = 'pots-app.js';
+    document.body.appendChild(s);
+  }
+
+  document.getElementById('signout').addEventListener('click', async () => { await sb.auth.signOut(); location.replace('./'); });
+  sb.auth.onAuthStateChange((_e, sess) => { if (!sess) location.replace('./'); });
+  boot();
+  })();
+</script>
+</body></html>
