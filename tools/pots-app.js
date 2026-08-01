@@ -34,26 +34,37 @@ function seedPots(){
   const pots = raw.map(r => ({ id:r.id, name:r.name, group:r.group, target:r.target, monthly:r.monthly, due:r.due }));
   const transactions = raw.filter(r => r.balance !== 0).map(r => ({
     id: uid(), potId: r.id, date: today, description: 'Opening balance (imported from budget spreadsheet)',
-    amount: r.balance, auto: false
+    amount: r.balance, auto: false, opening: true
   }));
   return { pots, transactions };
 }
 
 // ---------- state ----------
 function uid(){ return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-function todayStr(){ return new Date().toISOString().slice(0,10); }
+// Local calendar date, NOT toISOString: that returns UTC, so a spend logged after
+// midnight during BST would be filed under the previous day and throw the daily
+// bank reconciliation out by one.
+function dateStrOf(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function todayStr(){ return dateStrOf(new Date()); }
 function monthStr(dateStr){ return (dateStr || '').slice(0,7); }
-function fmt(n){ return (n<0?'-£':'£') + Math.abs(n).toFixed(2); }
+// Money is held to 2dp on write. Floating point drifts (0.1+0.2 = 0.30000000000000004),
+// which is invisible on screen but shows up as long decimals in the Excel export.
+function money(n){ return Math.round((Number(n) || 0) * 100) / 100; }
+function fmt(n){ return (n<0?'-£':'£') + Math.abs(money(n)).toFixed(2); }
 
 function loadState(){
   let s = null;
   try { s = JSON.parse(localStorage.getItem(STORE_KEY)); } catch(e){}
   if (!s || !s.pots || !s.pots.length){
     const seeded = seedPots();
-    s = { pots: seeded.pots, transactions: seeded.transactions };
+    s = { pots: seeded.pots, transactions: seeded.transactions, lastDistributed: null };
   }
   s.pots = s.pots || [];
   s.transactions = s.transactions || [];
+  if (s.lastDistributed === undefined) s.lastDistributed = null;
+  if (s.lastDistributionId === undefined) s.lastDistributionId = null;
   return s;
 }
 function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
@@ -62,27 +73,59 @@ let state = loadState();
 let openPotId = null;
 let txType = 'spend';
 
-// ---------- automatic monthly top-up ----------
-function runAutoTopups(){
-  const thisMonth = monthStr(todayStr());
-  let added = false;
+// ---------- monthly distribution (manual, double-confirmed) ----------
+function distributableTotal(){
+  return money(state.pots.filter(p => p.monthly > 0).reduce((s,p) => s + p.monthly, 0));
+}
+function distributableCount(){
+  return state.pots.filter(p => p.monthly > 0).length;
+}
+function openConfirmModal(){
+  const total = distributableTotal();
+  const count = distributableCount();
+  const already = state.lastDistributed && monthStr(state.lastDistributed) === monthStr(todayStr());
+  el('confirmText').innerHTML = already
+    ? `You already distributed this month, on <strong>${state.lastDistributed}</strong>. Doing it again adds a second top-up to every pot. Only do this if you mean to.`
+    : `This moves <strong>${fmt(total)}</strong> into <strong>${count}</strong> pots, one top-up transaction each, dated today.`;
+  el('confirmDistributeBtn').textContent = already ? 'Yes, distribute again' : `Yes, distribute ${fmt(total)} now`;
+  el('confirmModal').classList.add('open');
+}
+function closeConfirmModal(){ el('confirmModal').classList.remove('open'); }
+function distributeMonth(){
+  // Every transaction from one distribution shares a run id, so the whole run can
+  // be undone in one go rather than deleting from 20-odd pots by hand.
+  const distId = 'd' + Date.now().toString(36);
   state.pots.forEach(p => {
     if (!p.monthly || p.monthly <= 0) return;
-    const already = state.transactions.some(t => t.potId === p.id && t.auto && monthStr(t.date) === thisMonth);
-    if (!already){
-      state.transactions.push({
-        id: uid(), potId: p.id, date: thisMonth + '-01',
-        description: 'Monthly top-up', amount: p.monthly, auto: true
-      });
-      added = true;
-    }
+    state.transactions.push({
+      id: uid(), potId: p.id, date: todayStr(),
+      description: 'Monthly distribution', amount: money(p.monthly), auto: true, distributionId: distId
+    });
   });
-  if (added) saveState();
+  state.lastDistributed = todayStr();
+  state.lastDistributionId = distId;
+  saveState();
+  closeConfirmModal();
+  render();
+}
+function undoLastDistribution(){
+  const distId = state.lastDistributionId;
+  if (!distId) return;
+  const affected = state.transactions.filter(t => t.distributionId === distId);
+  if (!affected.length) return;
+  const total = money(affected.reduce((s,t) => s + t.amount, 0));
+  if (!confirm(`Undo the last distribution? This removes ${affected.length} top-ups totalling ${fmt(total)}.`)) return;
+  state.transactions = state.transactions.filter(t => t.distributionId !== distId);
+  state.lastDistributionId = null;
+  const remaining = state.transactions.filter(t => t.distributionId);
+  state.lastDistributed = remaining.length ? remaining[remaining.length-1].date : null;
+  saveState();
+  render();
 }
 
 // ---------- derived ----------
 function potBalance(potId){
-  return state.transactions.filter(t => t.potId === potId).reduce((s,t) => s + t.amount, 0);
+  return money(state.transactions.filter(t => t.potId === potId).reduce((s,t) => s + t.amount, 0));
 }
 function potTransactions(potId){
   return state.transactions.filter(t => t.potId === potId).sort((a,b) => b.date.localeCompare(a.date) || 0);
@@ -91,6 +134,45 @@ function groupsInUse(){
   const seen = [];
   state.pots.forEach(p => { const g = p.group || 'Other'; if (!seen.includes(g)) seen.push(g); });
   return seen;
+}
+
+// Total spent (all pots) per day, most recent first. Real spends only: top-ups
+// and imported/starting opening balances excluded, they are not a purchase.
+function dailySpend(days){
+  const out = [];
+  for (let i = 0; i < days; i++){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = dateStrOf(d);
+    const total = money(state.transactions
+      .filter(t => t.date === ds && t.amount < 0 && !t.opening)
+      .reduce((s,t) => s + t.amount, 0));
+    out.push({ date: ds, total });
+  }
+  return out;
+}
+
+// Running total balance across every pot, day by day, from the first transaction to today.
+// Reconstructed from the transaction log itself, not a stored snapshot.
+function balanceHistory(){
+  if (!state.transactions.length) return [];
+  const txs = state.transactions.slice().sort((a,b) => a.date.localeCompare(b.date));
+  const byDate = {};
+  txs.forEach(t => { byDate[t.date] = (byDate[t.date] || 0) + t.amount; });
+  // Parse as local dates (new Date('YYYY-MM-DD') is treated as UTC midnight and
+  // can land on the wrong local day).
+  const parts = (s) => s.split('-').map(Number);
+  const [sy,sm,sd] = parts(txs[0].date);
+  const [ey,em,ed] = parts(todayStr());
+  const end = new Date(ey, em-1, ed);
+  const out = [];
+  let running = 0;
+  for (let d = new Date(sy, sm-1, sd); d <= end; d.setDate(d.getDate() + 1)){
+    const ds = dateStrOf(d);
+    running = money(running + (byDate[ds] || 0));
+    out.push({ date: ds, total: running });
+  }
+  return out;
 }
 
 // ---------- rendering ----------
@@ -136,7 +218,86 @@ function renderPots(){
   el('potGroups').querySelectorAll('.potcard').forEach(c => c.addEventListener('click', () => openDetail(c.dataset.id)));
 }
 
-function render(){ renderHero(); renderPots(); }
+function renderAllocation(){
+  const rows = state.pots.map(p => `<tr class="allocrow" data-id="${p.id}">
+    <td>${esc(p.name)}</td>
+    <td class="dim">${esc(p.group || '')}</td>
+    <td style="text-align:right"><input type="number" step="0.01" min="0" class="allocInput" data-id="${p.id}" value="${(p.monthly||0)}"></td>
+  </tr>`).join('');
+  el('allocTable').querySelector('tbody').innerHTML = rows || '<tr><td colspan="3" class="empty">No pots yet.</td></tr>';
+  el('allocTable').querySelectorAll('.allocInput').forEach(inp => inp.addEventListener('change', () => {
+    const p = state.pots.find(x => x.id === inp.dataset.id);
+    if (!p) return;
+    p.monthly = money(parseFloat(inp.value) || 0);
+    saveState();
+    renderHero(); renderPots(); renderAllocationTotal();
+  }));
+  renderAllocationTotal();
+  el('lastDistributedNote').textContent = 'Last distributed: ' + (state.lastDistributed || 'never');
+  const canUndo = !!(state.lastDistributionId && state.transactions.some(t => t.distributionId === state.lastDistributionId));
+  el('undoDistributeBtn').classList.toggle('hidden', !canUndo);
+}
+function renderAllocationTotal(){
+  el('allocTotal').textContent = fmt(distributableTotal()) + ' across ' + distributableCount() + ' pots';
+}
+
+function renderDailyStrip(){
+  const days = dailySpend(7);
+  const today = todayStr();
+  el('dailyStrip').innerHTML = days.map(d => {
+    const label = d.date === today ? 'Today' : new Date(d.date).toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+    return `<div class="daycard ${d.date===today?'today':''}">
+      <div class="daydate">${label}</div>
+      <div class="dayamt ${d.total===0?'zero':''}">${d.total===0 ? '£0.00' : fmt(d.total)}</div>
+    </div>`;
+  }).join('');
+}
+
+let balanceChartInst = null, scatterChartInst = null;
+function renderCharts(){
+  if (typeof Chart === 'undefined') return; // CDN not reachable: rest of the tool still works
+  const hist = balanceHistory();
+  const balEmpty = el('balanceChartEmpty');
+  if (hist.length < 2){
+    balEmpty.classList.remove('hidden');
+  } else {
+    balEmpty.classList.add('hidden');
+    if (balanceChartInst) balanceChartInst.destroy();
+    balanceChartInst = new Chart(el('balanceChart'), {
+      type: 'line',
+      data: { labels: hist.map(h => h.date), datasets: [{
+        data: hist.map(h => h.total), borderColor: '#C8A15A', backgroundColor: 'rgba(200,161,90,.12)',
+        fill: true, tension: 0.25, pointRadius: 0, borderWidth: 2
+      }] },
+      options: { plugins: { legend: { display: false } },
+        scales: { x: { ticks: { color: '#9a948a', maxTicksLimit: 6 }, grid: { color: '#2f333a' } },
+                  y: { ticks: { color: '#9a948a' }, grid: { color: '#2f333a' } } } }
+    });
+  }
+
+  const scatEmpty = el('scatterChartEmpty');
+  if (!state.pots.length){
+    scatEmpty.classList.remove('hidden');
+  } else {
+    scatEmpty.classList.add('hidden');
+    if (scatterChartInst) scatterChartInst.destroy();
+    scatterChartInst = new Chart(el('scatterChart'), {
+      type: 'scatter',
+      data: { datasets: [{
+        data: state.pots.map(p => ({ x: p.monthly || 0, y: potBalance(p.id), label: p.name })),
+        backgroundColor: '#4ecb8d', pointRadius: 5, pointHoverRadius: 7
+      }] },
+      options: { plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => ctx.raw.label + ': ' + fmt(ctx.raw.y) + ' at ' + fmt(ctx.raw.x) + '/mo' } } },
+        scales: {
+          x: { title: { display: true, text: 'Monthly commitment (£)', color: '#9a948a' }, ticks: { color: '#9a948a' }, grid: { color: '#2f333a' } },
+          y: { title: { display: true, text: 'Current balance (£)', color: '#9a948a' }, ticks: { color: '#9a948a' }, grid: { color: '#2f333a' } }
+        } }
+    });
+  }
+}
+
+function render(){ renderHero(); renderPots(); renderAllocation(); renderDailyStrip(); renderCharts(); }
 
 function esc(s){ const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 
@@ -191,7 +352,7 @@ function addTransaction(){
   const desc = el('txDesc').value.trim() || (txType === 'spend' ? 'Spend' : 'Added');
   state.transactions.push({
     id: uid(), potId: openPotId, date, description: desc,
-    amount: txType === 'spend' ? -Math.abs(amt) : Math.abs(amt), auto: false
+    amount: money(txType === 'spend' ? -Math.abs(amt) : Math.abs(amt)), auto: false
   });
   saveState();
   el('txAmount').value = ''; el('txDesc').value = '';
@@ -205,8 +366,8 @@ function savePotSettings(){
   if (!p) return;
   p.name = el('editName').value.trim() || p.name;
   p.group = el('editGroup').value.trim() || 'Other';
-  p.monthly = parseFloat(el('editMonthly').value) || 0;
-  p.target = el('editTarget').value ? parseFloat(el('editTarget').value) : null;
+  p.monthly = money(parseFloat(el('editMonthly').value) || 0);
+  p.target = el('editTarget').value ? money(parseFloat(el('editTarget').value)) : null;
   p.due = el('editDue').value || null;
   saveState(); render();
   el('detailTitle').textContent = p.name;
@@ -240,7 +401,7 @@ function createPot(){
   };
   state.pots.push(p);
   const opening = parseFloat(el('newOpening').value) || 0;
-  if (opening) state.transactions.push({ id: uid(), potId: id, date: todayStr(), description: 'Starting balance', amount: opening, auto: false });
+  if (opening) state.transactions.push({ id: uid(), potId: id, date: todayStr(), description: 'Starting balance', amount: money(opening), auto: false, opening: true });
   saveState(); render(); closeAddModal();
 }
 
@@ -248,13 +409,13 @@ function createPot(){
 function exportExcel(){
   const potsRows = state.pots.map(p => ({
     Name: p.name, Group: p.group || '', Balance: potBalance(p.id),
-    'Monthly top-up': p.monthly || 0, 'Annual target': p.target || '', 'Due date': p.due || ''
+    'Monthly top-up': money(p.monthly || 0), 'Annual target': p.target ? money(p.target) : '', 'Due date': p.due || ''
   }));
   const txRows = state.transactions
     .slice().sort((a,b) => a.date.localeCompare(b.date))
     .map(t => {
       const p = state.pots.find(x => x.id === t.potId);
-      return { Date: t.date, Pot: p ? p.name : '(deleted pot)', Description: t.description, Amount: t.amount, Automatic: t.auto ? 'yes' : '' };
+      return { Date: t.date, Pot: p ? p.name : '(deleted pot)', Description: t.description, Amount: money(t.amount), Automatic: t.auto ? 'yes' : '' };
     });
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(potsRows), 'Pots');
@@ -263,7 +424,6 @@ function exportExcel(){
 }
 
 // ---------- wire up ----------
-runAutoTopups();
 render();
 el('search').addEventListener('input', renderPots);
 el('addPotBtn').addEventListener('click', openAddModal);
@@ -276,3 +436,7 @@ el('addTxBtn').addEventListener('click', addTransaction);
 el('segSpend').addEventListener('click', () => setTxType('spend'));
 el('segAdd').addEventListener('click', () => setTxType('add'));
 el('exportBtn').addEventListener('click', exportExcel);
+el('distributeBtn').addEventListener('click', openConfirmModal);
+el('cancelDistributeBtn').addEventListener('click', closeConfirmModal);
+el('confirmDistributeBtn').addEventListener('click', distributeMonth);
+el('undoDistributeBtn').addEventListener('click', undoLastDistribution);

@@ -100,6 +100,33 @@ tr:last-child td { border-bottom:none; }
 .txauto { color:var(--dim); font-size:10.5px; }
 
 .hidden { display:none !important; }
+
+/* Allocation panel */
+.panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:18px; }
+.panelhead { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.panelhead h2.section { margin:0; }
+.allocrow input[type=number] { width:110px; background:#262a2f; border:1px solid var(--line); color:var(--text);
+  border-radius:6px; padding:6px 8px; font:13.5px inherit; text-align:right; }
+.alloctotal { display:flex; justify-content:space-between; align-items:center; margin-top:14px; flex-wrap:wrap; gap:10px; }
+
+/* Daily spend strip */
+.dailystrip { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; }
+.daycard { flex:0 0 auto; min-width:100px; background:var(--card); border:1px solid var(--line); border-radius:10px;
+  padding:12px 14px; text-align:center; }
+.daycard.today { border-color:var(--accent); }
+.daydate { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+.dayamt { font-family:'Fraunces',Georgia,serif; font-size:19px; font-weight:600; color:var(--bad); }
+.dayamt.zero { color:var(--dim); }
+
+/* Charts */
+.chartsgrid { display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
+@media (max-width:900px) { .chartsgrid { grid-template-columns:1fr; } }
+.chartcard { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+.chartcard h3 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:15px; margin:0 0 12px; color:var(--dim); }
+.chartcard canvas { max-height:280px; }
+
+/* Confirm-to-distribute modal */
+.confirmbox { background:rgba(230,192,90,.08); border:1px solid var(--warn); border-radius:8px; padding:14px 16px; margin-bottom:16px; }
 </style>
 </head>
 <body>
@@ -123,6 +150,30 @@ tr:last-child td { border-bottom:none; }
   <div class="stats" id="heroStats"></div>
 </div></div>
 
+<div class="panel">
+  <div class="panelhead">
+    <h2 class="section">Monthly allocation</h2>
+    <div class="dim" id="lastDistributedNote">Last distributed: never</div>
+  </div>
+  <div class="sub" style="margin-bottom:12px">Edit any amount, it saves as you type. When it's right for this month, distribute it below.</div>
+  <table id="allocTable"><thead><tr><th>Pot</th><th>Group</th><th style="text-align:right">Monthly (&pound;)</th></tr></thead><tbody></tbody></table>
+  <div class="alloctotal">
+    <div class="dim">Total committed each month: <strong id="allocTotal" style="color:var(--text)"></strong></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="ghost hidden" id="undoDistributeBtn">Undo last distribution</button>
+      <button class="primary" id="distributeBtn">Distribute this month</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panelhead">
+    <h2 class="section">Spent, by day</h2>
+    <div class="dim">For matching against the bank account</div>
+  </div>
+  <div class="dailystrip" id="dailyStrip"></div>
+</div>
+
 <div class="toolbar">
   <input type="search" id="search" placeholder="Search pots...">
   <button class="ghost" id="exportBtn">Export to Excel</button>
@@ -130,6 +181,32 @@ tr:last-child td { border-bottom:none; }
 </div>
 
 <div id="potGroups"></div>
+
+<h2 class="section" style="margin-top:32px">Tracking</h2>
+<div class="chartsgrid">
+  <div class="chartcard">
+    <h3>Total balance over time</h3>
+    <canvas id="balanceChart"></canvas>
+    <div class="empty hidden" id="balanceChartEmpty">Not enough history yet to chart.</div>
+  </div>
+  <div class="chartcard">
+    <h3>Balance vs monthly commitment, per pot</h3>
+    <canvas id="scatterChart"></canvas>
+    <div class="empty hidden" id="scatterChartEmpty">No pots to chart.</div>
+  </div>
+</div>
+
+<!-- Confirm distribution modal -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal">
+    <h3>Distribute this month's amounts?</h3>
+    <div class="confirmbox" id="confirmText"></div>
+    <div class="modalbtns">
+      <button class="ghost" id="cancelDistributeBtn">Cancel</button>
+      <button class="primary" id="confirmDistributeBtn" style="background:var(--warn)"></button>
+    </div>
+  </div>
+</div>
 
 <!-- Pot detail modal -->
 <div class="modal-bg" id="detailModal">
@@ -197,6 +274,7 @@ tr:last-child td { border-bottom:none; }
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 
 <!-- Supabase + auth gate + localStorage->Supabase shim -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
