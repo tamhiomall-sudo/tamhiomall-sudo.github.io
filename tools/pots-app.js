@@ -200,11 +200,15 @@ function renderPots(){
     html += `<h2 class="section">${esc(g)}</h2><div class="potgrid">`;
     pots.forEach(p => {
       const bal = potBalance(p.id);
-      const pct = p.target ? Math.max(0, Math.min(100, Math.round(100*bal/p.target))) : null;
+      // Bar width is capped at 100 so it cannot overflow the card; the percentage
+      // shown is the true figure, so an over-funded pot reads above 100%.
+      const truePct = p.target ? Math.round(100 * bal / p.target) : null;
+      const barPct = truePct === null ? null : Math.max(0, Math.min(100, truePct));
       html += `<div class="potcard" data-id="${p.id}">
         <div class="potname">${esc(p.name)}</div>
         <div class="potbal ${bal<0?'neg':''}">${fmt(bal)}</div>
-        ${p.target ? `<div class="bar"><span style="width:${pct}%"></span></div><div class="potmeta"><span>target ${fmt(p.target)}</span></div>` : ''}
+        ${p.target ? `<div class="bar"><span style="width:${barPct}%"></span></div>
+          <div class="potmeta"><span>target ${fmt(p.target)}</span><span class="potpct ${truePct>=100?'full':''}">${truePct}%</span></div>` : ''}
         <div class="potmeta">
           <span>${p.monthly ? fmt(p.monthly)+'/mo' : 'no monthly top-up'}</span>
           ${p.due ? `<span>due ${p.due}</span>` : ''}
@@ -253,7 +257,7 @@ function renderDailyStrip(){
   }).join('');
 }
 
-let balanceChartInst = null, scatterChartInst = null;
+let balanceChartInst = null;
 function renderCharts(){
   if (typeof Chart === 'undefined') return; // CDN not reachable: rest of the tool still works
   const hist = balanceHistory();
@@ -272,27 +276,6 @@ function renderCharts(){
       options: { plugins: { legend: { display: false } },
         scales: { x: { ticks: { color: '#9a948a', maxTicksLimit: 6 }, grid: { color: '#2f333a' } },
                   y: { ticks: { color: '#9a948a' }, grid: { color: '#2f333a' } } } }
-    });
-  }
-
-  const scatEmpty = el('scatterChartEmpty');
-  if (!state.pots.length){
-    scatEmpty.classList.remove('hidden');
-  } else {
-    scatEmpty.classList.add('hidden');
-    if (scatterChartInst) scatterChartInst.destroy();
-    scatterChartInst = new Chart(el('scatterChart'), {
-      type: 'scatter',
-      data: { datasets: [{
-        data: state.pots.map(p => ({ x: p.monthly || 0, y: potBalance(p.id), label: p.name })),
-        backgroundColor: '#4ecb8d', pointRadius: 5, pointHoverRadius: 7
-      }] },
-      options: { plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => ctx.raw.label + ': ' + fmt(ctx.raw.y) + ' at ' + fmt(ctx.raw.x) + '/mo' } } },
-        scales: {
-          x: { title: { display: true, text: 'Monthly commitment (£)', color: '#9a948a' }, ticks: { color: '#9a948a' }, grid: { color: '#2f333a' } },
-          y: { title: { display: true, text: 'Current balance (£)', color: '#9a948a' }, ticks: { color: '#9a948a' }, grid: { color: '#2f333a' } }
-        } }
     });
   }
 }

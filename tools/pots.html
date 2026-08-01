@@ -62,7 +62,9 @@ h2.section { font-size:14px; text-transform:uppercase; letter-spacing:.06em; col
 .potname { font-family:'Fraunces',Georgia,serif; font-size:16.5px; margin-bottom:8px; line-height:1.25; }
 .potbal { font-family:'Fraunces',Georgia,serif; font-size:23px; font-weight:600; }
 .potbal.neg { color:var(--bad); }
-.potmeta { color:var(--dim); font-size:11.5px; margin-top:6px; display:flex; flex-wrap:wrap; gap:8px; }
+.potmeta { color:var(--dim); font-size:11.5px; margin-top:6px; display:flex; flex-wrap:wrap; gap:8px; align-items:baseline; }
+.potpct { margin-left:auto; font-weight:600; color:var(--accent); }
+.potpct.full { color:var(--good); }
 .bar { height:6px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; margin:9px 0 2px; }
 .bar > span { display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--good)); border-radius:3px; }
 .potcard .quickspend { margin-top:10px; }
@@ -119,8 +121,6 @@ tr:last-child td { border-bottom:none; }
 .dayamt.zero { color:var(--dim); }
 
 /* Charts */
-.chartsgrid { display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
-@media (max-width:900px) { .chartsgrid { grid-template-columns:1fr; } }
 .chartcard { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
 .chartcard h3 { font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:15px; margin:0 0 12px; color:var(--dim); }
 .chartcard canvas { max-height:280px; }
@@ -152,22 +152,6 @@ tr:last-child td { border-bottom:none; }
 
 <div class="panel">
   <div class="panelhead">
-    <h2 class="section">Monthly allocation</h2>
-    <div class="dim" id="lastDistributedNote">Last distributed: never</div>
-  </div>
-  <div class="sub" style="margin-bottom:12px">Edit any amount, it saves as you type. When it's right for this month, distribute it below.</div>
-  <table id="allocTable"><thead><tr><th>Pot</th><th>Group</th><th style="text-align:right">Monthly (&pound;)</th></tr></thead><tbody></tbody></table>
-  <div class="alloctotal">
-    <div class="dim">Total committed each month: <strong id="allocTotal" style="color:var(--text)"></strong></div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <button class="ghost hidden" id="undoDistributeBtn">Undo last distribution</button>
-      <button class="primary" id="distributeBtn">Distribute this month</button>
-    </div>
-  </div>
-</div>
-
-<div class="panel">
-  <div class="panelhead">
     <h2 class="section">Spent, by day</h2>
     <div class="dim">For matching against the bank account</div>
   </div>
@@ -182,18 +166,27 @@ tr:last-child td { border-bottom:none; }
 
 <div id="potGroups"></div>
 
+<div class="panel" style="margin-top:32px">
+  <div class="panelhead">
+    <h2 class="section">Monthly allocation</h2>
+    <div class="dim" id="lastDistributedNote">Last distributed: never</div>
+  </div>
+  <div class="sub" style="margin-bottom:12px">Edit any amount, it saves as you type. When it's right for this month, distribute it below.</div>
+  <table id="allocTable"><thead><tr><th>Pot</th><th>Group</th><th style="text-align:right">Monthly (&pound;)</th></tr></thead><tbody></tbody></table>
+  <div class="alloctotal">
+    <div class="dim">Total committed each month: <strong id="allocTotal" style="color:var(--text)"></strong></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="ghost hidden" id="undoDistributeBtn">Undo last distribution</button>
+      <button class="primary" id="distributeBtn">Distribute this month</button>
+    </div>
+  </div>
+</div>
+
 <h2 class="section" style="margin-top:32px">Tracking</h2>
-<div class="chartsgrid">
-  <div class="chartcard">
-    <h3>Total balance over time</h3>
-    <canvas id="balanceChart"></canvas>
-    <div class="empty hidden" id="balanceChartEmpty">Not enough history yet to chart.</div>
-  </div>
-  <div class="chartcard">
-    <h3>Balance vs monthly commitment, per pot</h3>
-    <canvas id="scatterChart"></canvas>
-    <div class="empty hidden" id="scatterChartEmpty">No pots to chart.</div>
-  </div>
+<div class="chartcard">
+  <h3>Total balance over time</h3>
+  <canvas id="balanceChart"></canvas>
+  <div class="empty hidden" id="balanceChartEmpty">Not enough history yet to chart.</div>
 </div>
 
 <!-- Confirm distribution modal -->
