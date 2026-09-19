@@ -194,6 +194,13 @@
   @media (max-width: 800px) {
     .hero-night.tools .img-side::after { background: rgba(24,26,30,0.62); }
     .hero-night.tools .inner { padding: 90px 24px 90px; }
+    /* The phone rule above the per-page heroes sets the image full width, but
+       each page's own rule comes later and puts 62% back, while the left-edge
+       fade stays off. That left a hard vertical edge a third of the way across
+       on Writing, Resources and About (seen on his phone, 2026-09-19). */
+    .hero-night.fire .img-side,
+    .hero-night.resources .img-side,
+    .hero-night.horizon .img-side { width: 100%; }
   }
 
   /* Scroll cue: a dew drop sliding down a silk thread */
