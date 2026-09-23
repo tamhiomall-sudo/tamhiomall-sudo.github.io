@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Bosch;Adriaan;;;
+FN:Adriaan Bosch
+ORG:Buro Happold
+TITLE:Principal Security Consultant
+EMAIL;TYPE=INTERNET:adriaan.p.bosch@gmail.com
+TEL;TYPE=CELL,VOICE:+447840721031
+URL:https://adriaanbosch.net
+NOTE:Physical security strategist in the built environment.
+END:VCARD
