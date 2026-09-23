@@ -6,10 +6,29 @@
 <title>Adriaan Bosch · Contact</title>
 <meta name="description" content="Contact card for Adriaan Bosch, physical security strategist in the built environment.">
 <meta name="robots" content="noindex">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
 <style>
+  /* Fonts are served from this folder, not from Google.
+     Loading them from fonts.gstatic.com sends every visitor's IP
+     address to Google before they have agreed to anything, which a
+     Munich court ruled unlawful in 2022 precisely because hosting
+     them locally is an easy alternative (3 O 17493/20). It is also
+     faster: one origin, no third-party round trip on event wifi.
+     Latin subset only, taken from Google's own files. */
+  @font-face {
+    font-family: 'Fraunces';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(fraunces.woff2) format('woff2');
+  }
+  @font-face {
+    font-family: 'Source Sans 3';
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url(sourcesans3.woff2) format('woff2');
+  }
+
   :root {
     --paper: #faf8f4;
     --ink: #1c1b18;
@@ -175,6 +194,63 @@
   }
   footer .thread { margin-bottom: 18px; }
 
+  /* Swap details: a <details> so it still opens with no JavaScript */
+  .swap { margin-top: 26px; }
+  .swap > summary {
+    list-style: none;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 54px; padding: 14px 28px;
+    border: 1px solid var(--ink); border-radius: 2px;
+    font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 220ms ease-out, color 220ms ease-out;
+  }
+  .swap > summary::-webkit-details-marker { display: none; }
+  .swap > summary:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .swap[open] > summary { background: var(--ink); color: var(--paper); }
+  .swap-body { padding-top: 18px; }
+  .swap-body p.why {
+    font-size: 0.86rem; color: var(--ink-soft);
+    text-align: center; padding: 0 4px 16px;
+  }
+  .swap label {
+    display: block;
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px;
+  }
+  .swap input, .swap textarea {
+    width: 100%; font-family: inherit; font-size: 1rem; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 2px;
+    padding: 12px 14px; margin-bottom: 14px; min-height: 48px;
+  }
+  .swap textarea { min-height: 84px; resize: vertical; }
+  .swap input:focus, .swap textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .swap button[type="submit"] {
+    width: 100%; font-family: inherit; cursor: pointer;
+    min-height: 54px; padding: 14px 28px;
+    background: var(--ink); color: var(--paper);
+    border: 1px solid var(--ink); border-radius: 2px;
+    font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    transition: background-color 220ms ease-out, border-color 220ms ease-out;
+  }
+  .swap button[type="submit"]:hover { background: var(--accent); border-color: var(--accent); }
+  .swap-privacy {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .swap-status {
+    display: none; margin-top: 14px; padding: 12px 14px;
+    background: var(--accent-soft); border-left: 2px solid var(--accent);
+    font-size: 0.9rem;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
@@ -196,8 +272,8 @@
   <a class="btn btn-solid" id="f-save" href="adriaan-bosch-en.vcf" download>Save my contact</a>
 
   <div class="rows">
-    <a class="btn btn-line" id="f-email" href="mailto:adriaan.p.bosch@gmail.com">
-      <span class="k">Email</span><span class="v">adriaan.p.bosch@gmail.com</span>
+    <a class="btn btn-line" id="f-email" href="mailto:adriaan@adriaanbosch.net">
+      <span class="k">Email</span><span class="v">adriaan@adriaanbosch.net</span>
     </a>
     <a class="btn btn-line" id="f-web" href="https://adriaanbosch.net">
       <span class="k">Web</span><span class="v">adriaanbosch.net</span>
@@ -206,6 +282,33 @@
       <span class="k">LinkedIn</span><span class="v">in/adriaanbosch</span>
     </a>
   </div>
+
+  <details class="swap" id="swap">
+    <summary id="f-swaptitle">Swap details</summary>
+    <div class="swap-body">
+      <p class="why" id="f-swapwhy">So I remember our conversation, not just your name.</p>
+      <form id="swap-form" action="https://formspree.io/f/mojgapag" method="POST">
+        <label for="sw-name" id="f-lname">Your name</label>
+        <input type="text" id="sw-name" name="name" required autocomplete="name">
+
+        <label for="sw-email" id="f-lemail">Your email</label>
+        <input type="email" id="sw-email" name="email" required autocomplete="email">
+
+        <label for="sw-org" id="f-lorg">Company (optional)</label>
+        <input type="text" id="sw-org" name="company" autocomplete="organization">
+
+        <label for="sw-note" id="f-lnote">What we talked about (optional)</label>
+        <textarea id="sw-note" name="note"></textarea>
+
+        <input type="hidden" name="_subject" value="Card swap">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+
+        <button type="submit" id="f-send">Send it to me</button>
+        <p class="swap-privacy" id="f-privacy">Your details come to me by email so I can follow up on our conversation. They go nowhere else and onto no mailing list. Ask me at any time and I will delete them.</p>
+        <div class="swap-status" id="swap-status"></div>
+      </form>
+    </div>
+  </details>
 </main>
 
 <footer>
@@ -233,7 +336,18 @@ var LANGS = {
       email: 'Email',
       web: 'Web',
       li: 'LinkedIn',
-      note: "Saves straight to your phone's contacts."
+      note: "Saves straight to your phone's contacts.",
+      swaptitle: 'Swap details',
+      swapwhy: 'So I remember our conversation, not just your name.',
+      lname: 'Your name',
+      lemail: 'Your email',
+      lorg: 'Company (optional)',
+      lnote: 'What we talked about (optional)',
+      send: 'Send it to me',
+      privacy: 'Your details come to me by email so I can follow up on our conversation. ' +
+               'They go nowhere else and onto no mailing list. Ask me at any time and I will delete them.',
+      sent: 'Thank you. I have your details and I will be in touch.',
+      failed: 'That did not send. Please email me instead, the address is above.'
     }
   }
 };
@@ -251,6 +365,13 @@ function applyLang(code) {
   document.querySelector('#f-web .k').textContent = L.s.web;
   document.querySelector('#f-li .k').textContent = L.s.li;
   document.getElementById('f-note').textContent = L.s.note;
+  var swap = {swaptitle: 'f-swaptitle', swapwhy: 'f-swapwhy', lname: 'f-lname',
+              lemail: 'f-lemail', lorg: 'f-lorg', lnote: 'f-lnote', send: 'f-send',
+              privacy: 'f-privacy'};
+  for (var key in swap) {
+    var el = document.getElementById(swap[key]);
+    if (el) { el.textContent = L.s[key]; }
+  }
   var btns = document.querySelectorAll('#langs button');
   for (var i = 0; i < btns.length; i++) {
     btns[i].setAttribute('aria-pressed', btns[i].dataset.code === code ? 'true' : 'false');
@@ -268,6 +389,43 @@ function pickLang() {
   }
   return 'en';
 }
+
+/* ---------------------------------------------------------------
+   SWAP FORM
+   Posts to the same Formspree endpoint the main site uses. Without
+   JavaScript the plain form POST still works, so this only improves
+   what happens, it is never what makes it work.
+   --------------------------------------------------------------- */
+(function () {
+  var form = document.getElementById('swap-form');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var status = document.getElementById('swap-status');
+    var code = document.documentElement.lang.split('-')[0];
+    var s = (LANGS[code] || LANGS.en).s;
+    var btn = document.getElementById('f-send');
+    btn.disabled = true;
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(function (r) {
+      status.style.display = 'block';
+      if (r.ok) {
+        status.textContent = s.sent;
+        form.reset();
+      } else {
+        status.textContent = s.failed;
+        btn.disabled = false;
+      }
+    }).catch(function () {
+      status.style.display = 'block';
+      status.textContent = s.failed;
+      btn.disabled = false;
+    });
+  });
+})();
 
 (function () {
   var codes = Object.keys(LANGS);
