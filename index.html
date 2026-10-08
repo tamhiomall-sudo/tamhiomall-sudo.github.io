@@ -344,6 +344,17 @@
     margin-top: auto; padding-top: 10px; font-size: 0.72rem; text-transform: uppercase;
     letter-spacing: 0.12em; color: var(--accent); font-weight: 600;
   }
+  /* Tool tiles: the title link stretches over the whole tile so the tile
+     still opens the tool, and the Download link sits above it to save a copy. */
+  .tile-card.tool { position: relative; }
+  .tile-card.tool h3 a { text-decoration: none; }
+  .tile-card.tool .tile-open::after { content: ""; position: absolute; inset: 0; }
+  .tile-card.tool .tile-open:focus-visible { outline: none; }
+  .tile-card.tool .tile-open:focus-visible::after { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .tile-actions { margin-top: auto; display: flex; gap: 22px; align-items: baseline; }
+  .tile-actions .tag { margin-top: 0; }
+  .tile-download { position: relative; z-index: 1; text-decoration: none; color: var(--ink-soft) !important; }
+  .tile-download:hover, .tile-download:focus-visible { color: var(--accent) !important; text-decoration: underline; text-underline-offset: 3px; }
   .tile-card.soon { cursor: default; }
   .tile-card.soon:hover { background: var(--paper); }
   .tile-card.soon .tile-img { background: var(--line); }
@@ -898,54 +909,54 @@
       <div class="label">The tools</div>
       <h2>Tools that work where you do.</h2>
       <div class="tile-cards">
-        <a class="tile-card" href="https://adriaanbosch.net/protection-of-premises/protection-of-premises.html" target="_blank" rel="noopener">
+        <div class="tile-card tool">
           <img class="tile-img" src="https://adriaanbosch.net/protection-of-premises/card.jpg" alt="The Protection of Premises Readiness tool, showing a pub whose annual festival puts it in the enhanced tier" loading="lazy">
           <div class="tile-body">
-            <h3>Protection of Premises Readiness</h3>
+            <h3><a class="tile-open" href="https://adriaanbosch.net/protection-of-premises/protection-of-premises.html" target="_blank" rel="noopener">Protection of Premises Readiness</a></h3>
             <p>For the UK&rsquo;s Terrorism (Protection of Premises) Act 2025. Is your venue or event covered, and in which tier? Count people the way the Act asks, see where it puts you, and leave with the decisions you can take in the next 60 days.</p>
-            <span class="tag">Open</span>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/protection-of-premises/protection-of-premises.html" download="protection-of-premises.html" aria-label="Download Protection of Premises Readiness">Download</a></div>
           </div>
-        </a>
-        <a class="tile-card" href="https://adriaanbosch.net/file-integrity-check/file-integrity-check.html" target="_blank" rel="noopener">
+        </div>
+        <div class="tile-card tool">
           <img class="tile-img" src="https://adriaanbosch.net/file-integrity-check/card.jpg" alt="The File Integrity Check, with the fingerprint of a site survey report taken and ready to save" loading="lazy">
           <div class="tile-body">
-            <h3>File Integrity Check</h3>
+            <h3><a class="tile-open" href="https://adriaanbosch.net/file-integrity-check/file-integrity-check.html" target="_blank" rel="noopener">File Integrity Check</a></h3>
             <p>Prove a report, photograph or piece of evidence has not changed since you issued it. Take its fingerprint when it goes out, check it when it comes back, and keep the record. Nothing leaves your device.</p>
-            <span class="tag">Open</span>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/file-integrity-check/file-integrity-check.html" download="file-integrity-check.html" aria-label="Download File Integrity Check">Download</a></div>
           </div>
-        </a>
-        <a class="tile-card" href="https://adriaanbosch.net/site-survey/site-survey.html" target="_blank" rel="noopener">
+        </div>
+        <div class="tile-card tool">
           <img class="tile-img" src="https://adriaanbosch.net/site-survey/card.jpg" alt="The Site Survey tool, with the layers of a site on the left, a recommendation in the middle and the gaps still to settle on the right" loading="lazy">
           <div class="tile-body">
-            <h3>Site Survey</h3>
+            <h3><a class="tile-open" href="https://adriaanbosch.net/site-survey/site-survey.html" target="_blank" rel="noopener">Site Survey</a></h3>
             <p>A site security survey read from the outside in. Pick recommendations that already carry their standard, watch the gaps close, and export the report to Word.</p>
-            <span class="tag">Open</span>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/site-survey/site-survey.html" download="site-survey.html" aria-label="Download Site Survey">Download</a></div>
           </div>
-        </a>
-        <a class="tile-card" href="https://adriaanbosch.net/incident-log/incident-log.html" target="_blank" rel="noopener">
+        </div>
+        <div class="tile-card tool">
           <img class="tile-img" src="https://adriaanbosch.net/incident-log/card.jpg" alt="The Incident Log during a live incident, with the log on the left and where things stand on the right" loading="lazy">
           <div class="tile-body">
-            <h3>Incident Log</h3>
+            <h3><a class="tile-open" href="https://adriaanbosch.net/incident-log/incident-log.html" target="_blank" rel="noopener">Incident Log</a></h3>
             <p>A log for the person keeping the record while it happens. A few words and Enter, and the page shows how much is still unconfirmed and what was directed but never confirmed.</p>
-            <span class="tag">Open</span>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/incident-log/incident-log.html" download="incident-log.html" aria-label="Download Incident Log">Download</a></div>
           </div>
-        </a>
-        <a class="tile-card" href="https://adriaanbosch.net/bow-tie/bow-tie.html" target="_blank" rel="noopener">
+        </div>
+        <div class="tile-card tool">
           <img class="tile-img" src="https://adriaanbosch.net/bow-tie/card.jpg" alt="The Bow Tie tool, showing sources, the event and consequences with a control on each pathway" loading="lazy">
           <div class="tile-body">
-            <h3>Bow Tie</h3>
+            <h3><a class="tile-open" href="https://adriaanbosch.net/bow-tie/bow-tie.html" target="_blank" rel="noopener">Bow Tie</a></h3>
             <p>Sources on the left, consequences on the right, and a control on every pathway. Arm an escalation factor and watch a control fall.</p>
-            <span class="tag">Open</span>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/bow-tie/bow-tie.html" download="bow-tie.html" aria-label="Download Bow Tie">Download</a></div>
           </div>
-        </a>
-        <a class="tile-card" href="https://adriaanbosch.net/relationships/relationships.html" target="_blank" rel="noopener">
+        </div>
+        <div class="tile-card tool">
           <img class="tile-img" src="https://adriaanbosch.net/relationships/card.jpg" alt="The Relationships weekly check-in, listing the people worth a word this week" loading="lazy">
           <div class="tile-body">
-            <h3>Relationships</h3>
+            <h3><a class="tile-open" href="https://adriaanbosch.net/relationships/relationships.html" target="_blank" rel="noopener">Relationships</a></h3>
             <p>A weekly check-in on the people you have decided are worth keeping: who is worth a word this week, and what you wanted from them. Every tier has a ceiling.</p>
-            <span class="tag">Open</span>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/relationships/relationships.html" download="relationships.html" aria-label="Download Relationships">Download</a></div>
           </div>
-        </a>
+        </div>
         <div class="tile-card soon">
           <div class="tile-img"></div>
           <div class="tile-body">
@@ -955,6 +966,7 @@
           </div>
         </div>
       </div>
+      <p class="body" style="margin-top:26px; max-width:62ch; color:var(--ink-soft);">Download a tool to keep a copy on your own device. It runs offline, and what you type stays on your computer. Open always gives you the latest version.</p>
     </section>
     <section class="band" style="border-bottom:none;">
       <div class="two-col">
