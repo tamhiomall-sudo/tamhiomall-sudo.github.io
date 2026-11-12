@@ -457,8 +457,12 @@ function start(){
     try {
       const inj = await unlock(card, w);
       const now = new Date();
-      if (inj.t) $('head').textContent = inj.t; else put('head', 'inject');
-      $('text').textContent = inj.x || '';
+      /* Say each thing once: a card whose wording is only its heading shows the
+         heading alone, never the same words twice. */
+      const t = (inj.t || '').trim(), x = (inj.x || '').trim();
+      if (t) $('head').textContent = t; else put('head', 'inject');
+      $('text').textContent = x === t ? '' : x;
+      $('text').classList.toggle('hide', !x || x === t);
       put('when', 'opened', clock(now));
       $('lock').classList.add('hide'); $('shown').classList.remove('hide');
       $('got').focus();
