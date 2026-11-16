@@ -286,6 +286,14 @@ input:focus{border-color:var(--accent);outline:none;}
 /* Arabic: the second line in a two-language page, and no letter-spacing,
    which pulls joined Arabic letters apart. */
 .ar2{display:block;margin-top:3px;}
+/* A message look: who sent it and when, a photo of the hazard, then the words,
+   as a control room message would arrive on a phone. */
+.mhead{display:flex;align-items:center;gap:10px;margin:0 0 12px;}
+.av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;
+  background:var(--accent-tint);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-edge);}
+.mfrom{font-weight:600;font-size:16px;line-height:1.2;}
+.mtime{display:block;color:var(--dim);font-size:13px;}
+.pic{display:block;width:100%;height:auto;border-radius:10px;margin:0 0 12px;background:var(--sunk);aspect-ratio:4/3;object-fit:cover;}
 .arabic,.arabic *,:lang(ar){letter-spacing:0!important;}
 </style>
 <style id="house-extra">
@@ -330,6 +338,9 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):
   </div>
 
   <div class="panel hide" id="shown">
+    <div class="mhead hide" id="mhead"><span class="av" id="av" aria-hidden="true"></span>
+      <div><span class="mfrom" id="from" dir="auto"></span><span class="mtime" id="mtime"></span></div></div>
+    <img class="pic hide" id="pic" alt="">
     <p class="text" id="text" dir="auto"></p>
     <p class="meta" id="when"></p>
     <button class="btn ghost" id="got">Received</button>
@@ -386,7 +397,19 @@ const TX = {
              'هذه الكلمة لا تفتح هذه البطاقة. تحقّق منها مع مسؤول التحكم.'],
   inject:   ['Inject', 'مُدخَل'],
   opened:   ['Opened at {t}', 'فُتحت الساعة {t}'],
-  gotMsg:   ['Received at {t}. Tell the controller.', 'تم الاستلام الساعة {t}. أبلغ مسؤول التحكم.']
+  gotMsg:   ['Received at {t}. Tell the controller.', 'تم الاستلام الساعة {t}. أبلغ مسؤول التحكم.'],
+  newMsg:   ['New message', 'رسالة جديدة'],
+  control:  ['Control room', 'غرفة التحكم'],
+  sent:     ['Sent {t}', 'أُرسلت الساعة {t}']
+};
+/* The pictures a card may name: generic, made for exercises, kept beside this
+   page in pics/. Only these names load, so a card can never point the phone at
+   another address. Each has words for a screen reader. */
+const PICS = {
+  'gas-door':  ['A service corridor ending at a plant room door with a gas danger sign', 'ممر خدمة ينتهي بباب غرفة المعدات وعليه لافتة خطر غاز'],
+  'gas-valve': ['A leaking joint on a yellow gas pipe, with frost and vapour', 'وصلة تسرّب على أنبوب غاز أصفر مع صقيع وبخار'],
+  'gas-meter': ['A gas meter and regulator, the pressure gauge in the red', 'عدّاد غاز ومنظّم ومؤشر الضغط في المنطقة الحمراء'],
+  'hot-work':  ['A contractor cutting pipe with a grinder beside gas pipes, sparks flying', 'مقاول يقطع أنبوباً بالمجلخة بجانب أنابيب الغاز والشرر يتطاير']
 };
 let LANG = 'en';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -463,6 +486,26 @@ function start(){
       if (t) $('head').textContent = t; else put('head', 'inject');
       $('text').textContent = x === t ? '' : x;
       $('text').classList.toggle('hide', !x || x === t);
+      /* A card that names a picture or a sender arrives as a message. */
+      const pic = typeof inj.p === 'string' && Object.prototype.hasOwnProperty.call(PICS, inj.p) ? inj.p : '';
+      if (pic || inj.f){
+        const from = String(inj.f || plain('control')).trim();
+        if (!t) put('head', 'newMsg');
+        $('from').textContent = from;
+        /* Initials for a Latin name; one letter for Arabic, whose letters change
+           shape when they stand alone side by side. */
+        const words = from.split(/\s+/).filter(Boolean);
+        $('av').textContent = /[\u0600-\u06FF]/.test(from) ? from.replace(/^ال/, '')[0] || '' : words.slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        put('mtime', 'sent', clock(now).slice(0, 5));
+        $('mhead').classList.remove('hide');
+        if (pic){
+          const img = $('pic');
+          img.alt = PICS[pic][LANG === 'ar' ? 1 : 0];
+          img.onerror = () => img.classList.add('hide');
+          img.src = 'pics/' + pic + '.webp';
+          img.classList.remove('hide');
+        }
+      }
       put('when', 'opened', clock(now));
       $('lock').classList.add('hide'); $('shown').classList.remove('hide');
       $('got').focus();
