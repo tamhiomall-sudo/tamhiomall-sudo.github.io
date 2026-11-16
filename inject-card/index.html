@@ -425,6 +425,18 @@ const PICS = {
   'gas-meter': ['A gas meter and regulator, the pressure gauge in the red', 'عدّاد غاز ومنظّم ومؤشر الضغط في المنطقة الحمراء'],
   'hot-work':  ['A contractor cutting pipe with a grinder beside gas pipes, sparks flying', 'مقاول يقطع أنبوباً بالمجلخة بجانب أنابيب الغاز والشرر يتطاير']
 };
+/* Pictures added later are listed in pics/list.json beside them, so a new
+   picture needs no new card page. Same rule: a plain name, a file in pics/.
+   Opened from disk the list cannot be read, and the four above still work. */
+const PICLIST = fetch('pics/list.json', { cache:'no-cache' })
+  .then(r => r.ok ? r.json() : null)
+  .then(d => {
+    const s = v => typeof v === 'string' ? v.trim().slice(0, 200) : '';
+    (d && Array.isArray(d.pictures) ? d.pictures : []).forEach(p => {
+      if (p && /^[a-z0-9-]{1,40}$/.test(p.key)) PICS[p.key] = [s(p.en) || s(p.name), s(p.ar) || s(p.en) || s(p.name)];
+    });
+  })
+  .catch(() => {});
 let LANG = 'en';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function tx(k, t){
@@ -493,6 +505,7 @@ function start(){
     busy = true; $('open').disabled = true; $('msg').className = 'msg'; put('msg', 'opening');
     try {
       const inj = await unlock(card, w);
+      await PICLIST;
       const now = new Date();
       /* Say each thing once: a card whose wording is only its heading shows the
          heading alone, never the same words twice. */
