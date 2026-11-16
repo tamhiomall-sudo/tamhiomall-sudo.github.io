@@ -1,0 +1,31 @@
+{
+ "kind": "inject-card-pictures",
+ "v": 1,
+ "note": "The pictures inject cards may show. Each key is a file key.webp in this folder.",
+ "pictures": [
+  {
+   "key": "gas-door",
+   "name": "Gas door",
+   "en": "A service corridor ending at a plant room door with a gas danger sign",
+   "ar": "ممر خدمة ينتهي بباب غرفة المعدات وعليه لافتة خطر غاز"
+  },
+  {
+   "key": "gas-valve",
+   "name": "Gas valve",
+   "en": "A leaking joint on a yellow gas pipe, with frost and vapour",
+   "ar": "وصلة تسرّب على أنبوب غاز أصفر مع صقيع وبخار"
+  },
+  {
+   "key": "gas-meter",
+   "name": "Gas meter",
+   "en": "A gas meter and regulator, the pressure gauge in the red",
+   "ar": "عدّاد غاز ومنظّم ومؤشر الضغط في المنطقة الحمراء"
+  },
+  {
+   "key": "hot-work",
+   "name": "Hot work",
+   "en": "A contractor cutting pipe with a grinder beside gas pipes, sparks flying",
+   "ar": "مقاول يقطع أنبوباً بالمجلخة بجانب أنابيب الغاز والشرر يتطاير"
+  }
+ ]
+}
