@@ -525,6 +525,25 @@
   .tintband .band { border-bottom: none; }
   .tintband .lens { background: var(--paper); }
 
+  /* Support (D82, his call 2026-11-22). The one place a brighter second yellow is
+     allowed: a bright pill with dark text is what people already read as "pay to
+     support", so it is recognised at a glance. Nothing else on the site uses it. */
+  .btn.support, .hero-night .btn.support {
+    color: #1c1b18; background: #FFD83A; border-radius: 999px; padding: 14px 32px;
+    box-shadow: 0 10px 24px -12px rgba(255,216,58,.55);
+  }
+  @media (hover: hover) {
+    .btn.support:hover, .hero-night .btn.support:hover { color: #1c1b18; background: #FFE066;
+      box-shadow: 0 14px 28px -12px rgba(255,216,58,.7); }
+  }
+  .support-note { font-size: 0.95rem; color: var(--night-ink); opacity: .9; }
+  .supportband { background: var(--night); color: var(--night-ink); }
+  .supportband .label { color: var(--ember); }
+  .supportband h2, .supportband .band p.body { color: var(--night-ink); }
+  .tile-card.tool .tile-support { position: relative; z-index: 1; text-decoration: none; color: #1c1b18 !important;
+    background: #FFD83A; padding: 4px 12px; border-radius: 999px; }
+  .tile-card.tool .tile-support:hover, .tile-card.tool .tile-support:focus-visible { background: #FFE066; text-decoration: none; }
+
   .lens span {
     display: block; margin-top: 16px; font-size: 0.72rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent);
@@ -889,6 +908,10 @@
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem); max-width: 16ch;">Free resources, drawn from the writing.</h1>
       <p class="lead">A playbook that works through one problem properly, and one-page field tools for the moment you are standing in it. Free to download, Creative Commons, so use them, change them, pass them on.</p>
       <p class="lead" style="margin-top:14px; font-size:1rem;">Looking for tools that run in your browser instead? <a href="#tools" style="color:var(--ember);">They have their own page.</a></p>
+      <div class="actions" style="margin-top:30px; display:flex; align-items:center; flex-wrap:wrap; gap:14px 18px;">
+        <a class="btn support" href="https://adriaanbosch.net/support/resources/" target="_blank" rel="noopener">Support the resources</a>
+        <span class="support-note">Free to use. Pay what it is worth.</span>
+      </div>
     </div>
   </div>
   <div class="tintband">
@@ -939,6 +962,25 @@
     </section>
   </div>
 
+  <div class="tintband supportband">
+    <div class="wrap">
+      <section class="band" style="border-bottom:none;">
+        <div class="two-col" style="align-items:center;">
+          <div>
+            <div class="label">Support</div>
+            <h2>These are free. They are not free to make.</h2>
+          </div>
+          <div>
+            <p class="body">The playbooks and field tools are free to download, share and adapt. Each one took real work to get right. If one has been useful, pay what you think it is worth. It keeps the next one coming, and it shows me which ones are doing the job.</p>
+            <div class="actions" style="margin-top:24px;">
+              <a class="btn support" href="https://adriaanbosch.net/support/resources/" target="_blank" rel="noopener">Support the resources</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <div class="tintband">
     <div class="wrap">
       <section class="band" style="border-bottom:none;">
@@ -969,6 +1011,10 @@
       <h1 style="font-size: clamp(2rem, 5vw, 3.4rem); max-width: 16ch;">Security tools that come to you.</h1>
       <p class="lead">These tools have been specifically created for security professionals and the way security work actually happens.</p>
       <p class="lead thread-line">Portable. Private. Offline. Built for security professionals.</p>
+      <div class="actions" style="margin-top:30px; display:flex; align-items:center; flex-wrap:wrap; gap:14px 18px;">
+        <a class="btn support" href="https://adriaanbosch.net/support/tools/" target="_blank" rel="noopener">Support the tools</a>
+        <span class="support-note">Free to use. Pay what it is worth.</span>
+      </div>
     </div>
   </div>
   <div class="wrap">
@@ -992,7 +1038,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/protection-of-premises/protection-of-premises.html" target="_blank" rel="noopener">Protection of Premises Readiness</a></h3>
             <p>For the UK&rsquo;s Terrorism (Protection of Premises) Act 2025. Is your venue or event covered, and in which tier? Count people the way the Act asks, see where it puts you, and leave with the decisions you can take in the next 60 days.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/protection-of-premises/protection-of-premises.html" download="protection-of-premises.html" aria-label="Download Protection of Premises Readiness">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/protection-of-premises/protection-of-premises.html" download="protection-of-premises.html" aria-label="Download Protection of Premises Readiness">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/protection-of-premises/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1000,7 +1046,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/file-integrity-check/file-integrity-check.html" target="_blank" rel="noopener">File Integrity Check</a></h3>
             <p>Prove a report, photograph or piece of evidence has not changed since you issued it. Take its fingerprint when it goes out, check it when it comes back, and keep the record. Nothing leaves your device.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/file-integrity-check/file-integrity-check.html" download="file-integrity-check.html" aria-label="Download File Integrity Check">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/file-integrity-check/file-integrity-check.html" download="file-integrity-check.html" aria-label="Download File Integrity Check">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/file-integrity-check/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1008,7 +1054,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/case-file/case-file.html" target="_blank" rel="noopener">Case File</a></h3>
             <p>One investigation built up over weeks: subjects, evidence graded the UK 3x5x2 way, and a timeline. Each piece of evidence gets a number for the real file, and the whole case exports to Obsidian as linked notes. Nothing leaves your device.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/case-file/case-file.html" download="case-file.html" aria-label="Download Case File">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/case-file/case-file.html" download="case-file.html" aria-label="Download Case File">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/case-file/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1016,7 +1062,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/site-survey/site-survey.html" target="_blank" rel="noopener">Site Survey</a></h3>
             <p>A site security survey read from the outside in. Pick recommendations that already carry their standard, watch the gaps close, and export the report to Word.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/site-survey/site-survey.html" download="site-survey.html" aria-label="Download Site Survey">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/site-survey/site-survey.html" download="site-survey.html" aria-label="Download Site Survey">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/site-survey/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1024,7 +1070,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/incident-log/incident-log.html" target="_blank" rel="noopener">Incident Log</a></h3>
             <p>A log for the person keeping the record while it happens. A few words and Enter, and the page shows how much is still unconfirmed and what was directed but never confirmed.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/incident-log/incident-log.html" download="incident-log.html" aria-label="Download Incident Log">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/incident-log/incident-log.html" download="incident-log.html" aria-label="Download Incident Log">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/incident-log/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1032,7 +1078,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/bow-tie/bow-tie.html" target="_blank" rel="noopener">Bow Tie</a></h3>
             <p>Sources on the left, consequences on the right, and a control on every pathway. Arm an escalation factor and watch a control fall.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/bow-tie/bow-tie.html" download="bow-tie.html" aria-label="Download Bow Tie">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/bow-tie/bow-tie.html" download="bow-tie.html" aria-label="Download Bow Tie">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/bow-tie/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1040,7 +1086,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/relationships/relationships.html" target="_blank" rel="noopener">Relationships</a></h3>
             <p>A weekly check-in on the people you have decided are worth keeping: who is worth a word this week, and what you wanted from them. Every tier has a ceiling.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/relationships/relationships.html" download="relationships.html" aria-label="Download Relationships">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/relationships/relationships.html" download="relationships.html" aria-label="Download Relationships">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/relationships/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card tool">
@@ -1048,7 +1094,7 @@
           <div class="tile-body">
             <h3><a class="tile-open" href="https://adriaanbosch.net/household-preparedness/household-preparedness.html" target="_blank" rel="noopener">Household Preparedness</a></h3>
             <p>For the home, not the job. How many days could your household manage on what is in the cupboard? Set against the UK&rsquo;s three days and longer Nordic and German advice, with use-by dates kept. Built for a phone.</p>
-            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/household-preparedness/household-preparedness.html" download="household-preparedness.html" aria-label="Download Household Preparedness">Download</a></div>
+            <div class="tile-actions"><span class="tag">Open</span><a class="tag tile-download" href="https://adriaanbosch.net/household-preparedness/household-preparedness.html" download="household-preparedness.html" aria-label="Download Household Preparedness">Download</a><a class="tag tile-support" href="https://adriaanbosch.net/support/household-preparedness/" target="_blank" rel="noopener" aria-label="Support this tool">Support</a></div>
           </div>
         </div>
         <div class="tile-card soon">
@@ -1062,6 +1108,28 @@
       </div>
       <p class="body" style="margin-top:26px; max-width:62ch; color:var(--ink-soft);">Download a tool to keep a copy on your own device. It runs offline, and what you type stays on your computer. Open always gives you the latest version.</p>
     </section>
+  </div>
+
+  <div class="tintband supportband">
+    <div class="wrap">
+      <section class="band" style="border-bottom:none;">
+        <div class="two-col" style="align-items:center;">
+          <div>
+            <div class="label">Support</div>
+            <h2>These are free. They are not free to make.</h2>
+          </div>
+          <div>
+            <p class="body">Every tool here is free to use, with no account and nothing to sign up for. Each one takes real time to build and keep right. If one has saved you time, pay what you think it is worth. It keeps the next one coming, and it shows me which ones are doing the job.</p>
+            <div class="actions" style="margin-top:24px;">
+              <a class="btn support" href="https://adriaanbosch.net/support/tools/" target="_blank" rel="noopener">Support the tools</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="wrap">
     <section class="band" style="border-bottom:none;">
       <div class="two-col">
         <div>
@@ -1644,6 +1712,9 @@
           <p>They are not added to any mailing list, not used for marketing, and not sold, shared or passed to anyone else.</p>
           <p>The form is delivered by Formspree, a company in the United States, which handles the message on its way to my inbox. Nothing else touches it.</p>
 
+          <h3>If you choose to support the work</h3>
+          <p>The support links take you off this site to a payment page run by Stripe, a payment company. Stripe handles your payment and holds your card details, and I never see them. I receive the amount, the email address you give, and a note of which tool or resource you came from. I keep that for my accounts. Stripe&rsquo;s own <a href="https://stripe.com/privacy" target="_blank" rel="noopener">privacy notice</a> covers what it does with your information.</p>
+
           <h3>How long it is kept</h3>
           <p>Messages stay in my email for as long as the conversation is useful, and no longer than two years unless we are working together or you have asked me to keep in touch.</p>
 
@@ -2182,6 +2253,7 @@
   <span>
     <a href="https://www.linkedin.com/in/adriaanbosch/" target="_blank" rel="noopener">LinkedIn</a> &nbsp;·&nbsp;
     <a href="https://start.me/p/YQJgrN/security-links" target="_blank" rel="noopener">Security links</a> &nbsp;&middot;&nbsp;
+    <a href="https://adriaanbosch.net/support/" target="_blank" rel="noopener">Support</a> &nbsp;&middot;&nbsp;
     <a href="#privacy">Privacy</a>
   </span>
 </footer>
